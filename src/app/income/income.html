@@ -1,0 +1,99 @@
+<div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg">
+    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <main>
+        <section>
+        <h3 class="text-2xl text-center mb-3">Dodaj excel z fakturami</h3>
+            <input class="my-2 text-sm" (change)="input_file($event)" type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+            <button  [disabled]="!file_ready" (click)="send_income()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+        </section>
+        <section class="mt-10">
+            <h3 class="text-2xl text-center mb-3">Dodaj fakturę ręcznie</h3>
+            <form  [formGroup]="inputForm" (ngSubmit)="file_income()">
+            <div class="text-center mt-3">
+                <p class="mr-2 mb-3">Wybierz klienta: </p>
+                <select id="client_pick" formControlName="client_nip" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wybierz kwotę: </p>
+                <input type="number" step="0.01" formControlName="amount" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wybierz datę: </p>
+                <input type="date" formControlName="date" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+            </div>
+            <button  [disabled]="loading" type="submit" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+            
+            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            </form>
+        </section>
+        <section class="mt-10">
+            <h3 class="text-2xl text-center mb-3">Dodaj klienta ręcznie</h3>
+            <form  [formGroup]="clientForm" (ngSubmit)="file_client()">
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wpisz nazwę: </p>
+                <input type="text" formControlName="name" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wpisz nip: </p>
+                <input type="text"  formControlName="client_nip" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+            </div>
+            <button  [disabled]="loading" type="submit" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+            
+            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            </form>
+        </section>
+        <section class="mt-10">
+            <h3 class="text-2xl text-center mb-3">Przeszłe wpływy</h3>
+            <div class="text-center mb-3">
+                <p class="mr-2 mb-3">Klient: </p>
+                <select id="client_filter" (change)="get_income()" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                        <option value="">Wszyscy</option>
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            </div>
+            <div class="flex justify-evenly items-center mb-4">
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Miesiąc: </p>
+                    <input type="number" id="month_filter" (change)="get_income()" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
+                </div>
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Rok: </p>
+                    <input type="number" id="year_filter" (change)="get_income()" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
+                </div>
+            </div>
+            <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
+                <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Kwota</th><th class="w-28">Data</th><th>Zmień</th><th>Usuń</th></tr></thead>
+                <tbody>
+                    @for(work of income;track $index){
+                        @if($index%2){<tr class="*:border *:border-gray-400 *:px-2 bg-gray-200"><td>{{work.name}}</td><td>{{work.amount.toFixed(2)}}</td><td>{{work.date}}</td>
+                            <td (click)="Patch(work)" class="bg-amber-400 cursor-pointer hover:bg-amber-600 transition-colors duration-500"></td>
+                            <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td></tr>}
+                        @if(!($index%2)){<tr class="*:border *:border-gray-400 *:px-2"><td>{{work.name}}</td><td>{{work.amount.toFixed(2)}}</td><td>{{work.date}}</td>
+                            <td (click)="Patch(work)" class="bg-amber-400 cursor-pointer hover:bg-amber-600 transition-colors duration-500"></td>
+                            <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td></tr>}
+                    }
+                </tbody>
+            </table>
+        </section>
+        <section class="mt-10">
+            <h3 class="text-2xl text-center mb-3">Usuń klienta</h3>
+            <p class="mr-2 mb-3">Klient: </p>
+                <select id="client_delete"  class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                        <option value=""></option>
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            <button  [disabled]="loading" (click)="delete_client()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+            
+            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+        </section>
+    </main>
+</div>

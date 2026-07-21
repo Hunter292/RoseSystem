@@ -1,0 +1,16 @@
+<div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center p-12 shadow-sm mx-auto mt-20 text-lg">
+    <h1 class="text-5xl text-center mt-3 mb-5">Różowa Księgowa</h1>
+    <main>
+
+        <form [formGroup]="loginForm" (ngSubmit)="log_in()">
+            <input placeholder="email" type="email" formControlName="email" class="bg-gray-100 p-3 text-base w-full sm:w-2/3 mt-3 focus:outline-primary-300 focus:outline-2">
+            <div class="text-red-600" *ngIf="loginForm.get('email')?.hasError('email')">Invalid email</div>
+            <input placeholder="hasło" type="password" formControlName="password" class="bg-gray-100 p-3 text-base w-full sm:w-2/3 mt-3 focus:outline-primary-300 focus:outline-2">
+            <div class="text-red-600" *ngIf="loginForm.get('password')?.hasError('minlength')">Password must be at least 5 characters long</div>
+            <br/>
+            <button type="submit" [disabled]="loading" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Zaloguj się</button>
+            <div *ngIf="errorMessage" class="text-red-600">{{ errorMessage }}</div>
+        </form>
+    </main>
+
+</div>

@@ -1,0 +1,82 @@
+<div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg">
+    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <main>
+        <section>
+        <h3 class="text-2xl text-center mb-3">Dodaj czynność</h3>
+        <form  [formGroup]="inputForm" (ngSubmit)="file_work()">
+            <div class="text-center mt-3">
+                <p class="mr-2">Wybierz klienta: </p>
+                <select id="client_pick" formControlName="client_nip" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wybierz czynność: </p>
+                <select formControlName="work_type" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                    @if(loading){<option value="Inne">ładowanie</option>}
+                    <option value="Księgowanie faktur">Księgowanie faktur</option>
+                    <option value="Księgowanie WB">Księgowanie WB</option>
+                    <option value="Księgowanie PK">Księgowanie PK</option>
+                    <option value="Analizy">Analizy</option>
+                    <option value="Podatki">Podatki</option>
+                    <option value="Wystawianie faktur sprzedaży">Wystawianie faktur sprzedaży</option>
+                    <option value="Wprowadzanie płatności">Wprowadzanie płatności</option>
+                    <option value="Raporty dla klienta">Raporty dla klienta</option>
+                    <option value="Sprawozdania GUS">Sprawozdania GUS</option>
+                    <option value="Usługi kadrowe">Usługi kadrowe</option>
+                    <option value="Inne">Inne</option>
+
+                </select>
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wybierz datę: </p>
+                <input type="date" formControlName="date" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Czas rozpoczęcia: </p>
+                <input type="time" formControlName="time_start" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Czas końca: </p>
+                <input type="time" formControlName="time_finish" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+            </div>
+            @if(errorMessage){<div class="text-red-600 ">{{ errorMessage }}</div>}
+            <button type="submit" [disabled]="loading" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Zapisz</button>
+
+        </form>
+        </section>
+        <section>
+        <h3 class="text-2xl text-center mb-3">Wykonane czynności</h3>
+        <div class="flex justify-evenly items-center mb-4">
+            <div class="flex justify-center items-center">
+                <p class="mr-2 w-10">Data: </p>
+                <input type="date" id="date_filter" (change)="get_work()" class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+            </div>
+            <div class="flex justify-center items-center">
+                <p class="mr-2 w-10">Klient: </p>
+                <select id="client_filter" (change)="get_work()" class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+                    <option value="">Wszyscy</option>
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
+            <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Czynność</th><th>Data</th><th>Rozpoczęcie</th><th>Zakończenie</th><th>Zmień</th><th>Usuń</th></tr></thead>
+            <tbody>
+                @for(work of work_done;track $index){
+                    @if($index%2){<tr class="*:border *:border-gray-400 *:px-2 bg-gray-200"><td>{{work.name}}</td><td>{{work.work_type}}</td><td>{{work.date}}</td>
+                        <td>{{work.time_start}}</td><td>{{work.time_finish}}</td><td (click)="Patch(work)" class="bg-amber-400 cursor-pointer hover:bg-amber-600 transition-colors duration-500"></td>
+                        <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td></tr>}
+                    @if(!($index%2)){<tr class="*:border *:border-gray-400 *:px-2"><td>{{work.name}}</td><td>{{work.work_type}}</td><td>{{work.date}}</td>
+                        <td>{{work.time_start}}</td><td>{{work.time_finish}}</td><td (click)="Patch(work)" class="bg-amber-400 cursor-pointer hover:bg-amber-600 transition-colors duration-500"></td>
+                        <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td></tr>}
+                }
+            </tbody>
+        </table>
+        </section>
+    </main>
+</div>
