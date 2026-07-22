@@ -61,7 +61,21 @@
             <div class="flex justify-evenly items-center mb-4">
                 <div class="flex justify-center items-center">
                     <p class="mr-2 w-15">Miesiąc: </p>
-                    <input type="number" id="month_filter" (change)="get_income()" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
+                    <select id="month_filter" (change)="get_income()"  class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+                        <option value=""></option>
+                        <option value="1">Styczeń</option>
+                        <option value="2">Luty</option>
+                        <option value="3">Marzec</option>
+                        <option value="4">Kwiecień</option>
+                        <option value="5">Maj</option>
+                        <option value="6">Czerwiec</option>
+                        <option value="7">Lipiec</option>
+                        <option value="8">Sierpień</option>
+                        <option value="9">Wrzesień</option>
+                        <option value="10">Październik</option>
+                        <option value="11">Listopad</option>
+                        <option value="12">Grudzień</option>
+                    </select>
                 </div>
                 <div class="flex justify-center items-center">
                     <p class="mr-2 w-15">Rok: </p>
