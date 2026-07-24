@@ -18,9 +18,12 @@ export class Oplacalnosc {
   selected:String="";
   client_work:Array<any>=[];
   constructor(
+    private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
   ){}
   ngOnInit(){
+    if(!sessionStorage.getItem("logged")) this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }});
     this.get_rates();
   }
   get_rates(){
@@ -76,21 +79,25 @@ export class Oplacalnosc {
     let client_work_http="";
     let previous="";
     let time;
-    let sum;
+    let sum=0;
     for(let work of this.client_work){
       time=(Number)(work.time).toFixed(2);
       if(work.work_type!=previous){
         if(previous){
+          client_work_http+="<p class=\"font-bold mt-2\">Suma: "+sum.toFixed(2)+"</p>";
+          sum=0;
           client_work_http+="</div></div>";
         }
         previous=work.work_type;
-        client_work_http+="<div><div class=\"bg-emerald-500 rounded-xl text-2xl\">"+work.work_type+"</div><div class=\"text-left\">";
+        client_work_http+="<div><div class=\"bg-amber-500 rounded-xl text-2xl\">"+work.work_type+"</div><div class=\"text-right text-xl\">";
         client_work_http+="<p>"+work.p_name+": "+time+"</p>";
+        sum+=(Number)(work.time);
       }else{
-
+        sum+=(Number)(work.time);
         client_work_http+="<p>"+work.p_name+": "+time+"</p>";
       }
     }
+    client_work_http+="<p class=\"font-bold mt-2\">Suma: "+sum.toFixed(2)+"</p>";
     client_work_http+="</div></div>";
     let elem=document.getElementById("roll_down"+id) as HTMLElement;
     elem.innerHTML=client_work_http;

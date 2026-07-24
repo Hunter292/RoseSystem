@@ -78,6 +78,7 @@ export class Income {
     reader.readAsBinaryString(file);
   }
   send_income(){
+    //add tickbox for inserting clients only
     for(let row of this.excelData){
       row["Data wyst."]=this.toMySQLDate(row["Data wyst."]);
       row["Netto"]=row["Netto"].replace(',','');

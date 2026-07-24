@@ -1,0 +1,64 @@
+<div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg">
+    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <main>
+        <section>
+        <h3 class="text-2xl text-center mb-3">{{worker}}</h3>
+
+            <div class="flex justify-center items-center mb-3">
+                <p class="mr-2 w-20">Miesiąc: </p>
+                <select id="month_filter" class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+                    <option value=""></option>
+                    <option value="1">Styczeń</option>
+                    <option value="2">Luty</option>
+                    <option value="3">Marzec</option>
+                    <option value="4">Kwiecień</option>
+                    <option value="5">Maj</option>
+                    <option value="6">Czerwiec</option>
+                    <option value="7">Lipiec</option>
+                    <option value="8">Sierpień</option>
+                    <option value="9">Wrzesień</option>
+                    <option value="10">Październik</option>
+                    <option value="11">Listopad</option>
+                    <option value="12">Grudzień</option>
+                </select>
+            </div>
+            <div class="flex justify-center items-center mb-3">
+                <p class="mr-2 w-20">Rok: </p>
+                <input type="number" id="year_filter" class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+            </div>
+            <div class="flex justify-center items-center mb-3">
+                <p class="mr-2 w-20">Data: </p>
+                <input type="date" id="date_filter" class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+            </div>
+            <div class="flex justify-center items-center mb-3">
+                <p class="mr-2 w-20">Klient: </p>
+                <select id="client_filter" class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+                    <option value="">Wszyscy</option>
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            </div>
+            <button  [disabled]="loading" (click)="get_work()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Generuj</button>
+            <div class="md:grid md:grid-cols-2 gap-y-2 divide-y-2 divide-solid divide-primary-300 p-2 text-xl text-right my-4">
+                @for(job of job_list; track $index){
+                    <p>{{job}}: {{(jobs.get(job))?.toFixed(2)}}</p>
+                }
+            </div>
+            <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
+            <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Czynność</th><th>Data</th><th>Rozpoczęcie</th><th>Czas</th><th>Usuń</th></tr></thead>
+            <tbody class="*:even:bg-gray-200 *:odd:bg-white">
+                @for(work of works;track $index){
+                    <tr class="*:border *:border-gray-400 *:px-2 ">
+                        <td>{{work.name}}</td><td>{{work.work_type}}</td><td>{{work.date}}</td>
+                        <td>{{work.time_start}}</td><td>{{(work.time).substring(0,(work.time).length-2)}} h</td>
+                        <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td>
+                    </tr>
+                    
+                }
+            </tbody>
+        </table>
+        </section>
+    </main>
+</div>
+
