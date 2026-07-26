@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../core/auth';
 @Component({
   selector: 'app-oplacalnosc',
   imports: [],
@@ -20,10 +21,11 @@ export class Oplacalnosc {
   constructor(
     private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
+    private authService: AuthService
   ){}
   ngOnInit(){
-    if(!sessionStorage.getItem("logged")) this.router.navigate(['/login'], {
-      queryParams: { returnUrl: this.router.url }});
+    this.authService.check_login();
+    this.authService.check_admin();
     this.get_rates();
   }
   get_rates(){

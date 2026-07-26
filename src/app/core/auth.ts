@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { TokenStorageService } from './token-storage';
+import { Router, ActivatedRoute } from '@angular/router';
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -12,7 +14,8 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private tokenStorage: TokenStorageService
+    private tokenStorage: TokenStorageService,
+    private router: Router,
   ) {
     this.currentUserSubject = new BehaviorSubject<any>(
       tokenStorage.getUser()
@@ -45,9 +48,12 @@ export class AuthService {
     this.tokenStorage.clear();
     this.currentUserSubject.next(null);
   }
-
-  getProfile(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/profile`);
+  check_login(){
+    if(!sessionStorage.getItem("logged")) this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }});
+  }
+  check_admin(){
+    if(!this.tokenStorage.getUser()?.admin) this.router.navigate(['/login'])
   }
 
   private parseJwt(token: string): any {

@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../core/auth';
 @Component({
   selector: 'app-worker',
   imports: [],
@@ -25,10 +26,11 @@ export class Worker {
     private router: Router,
     private route:ActivatedRoute,
     private changeDetectorRef: ChangeDetectorRef,
+    private authService: AuthService
   ){}
   ngOnInit(){
-    if(!sessionStorage.getItem("logged")) this.router.navigate(['/login'], {
-      queryParams: { returnUrl: this.router.url }});
+    this.authService.check_login();
+    this.authService.check_admin();
 
     this.route.paramMap.subscribe((obs) => {
       this.user_id=obs.get('id');

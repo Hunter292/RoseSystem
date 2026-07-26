@@ -5,6 +5,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../core/auth';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class WorkDone {
     private fb: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef,
     private router: Router,
+    private authService: AuthService
   ){
     this.inputForm = this.fb.group({
       client_nip: ['', Validators.required],
@@ -41,8 +43,7 @@ export class WorkDone {
     });
   }
   ngOnInit(){
-    if(!sessionStorage.getItem("logged")) this.router.navigate(['/login'], {
-      queryParams: { returnUrl: this.router.url }});
+    this.authService.check_login();
     this.http.get<any>(`${sessionStorage.getItem("apiURL")}/report/client`).subscribe({
         next: data => {
             this.clients=data;

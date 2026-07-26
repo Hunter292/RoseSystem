@@ -43,7 +43,7 @@ export class Login {
   log_in(){
     if (this.loginForm.invalid){
       if(this.loginForm.get('email')?.hasError('email') || this.loginForm.get('email')?.hasError('required')) this.errorMessage="Invalid email";
-      if(this.loginForm.get('password')?.hasError('minlength'),this.loginForm.get('password')?.hasError('required')) this.errorMessage="Password is too short";
+      if(this.loginForm.get('password')?.hasError('minlength')|| this.loginForm.get('password')?.hasError('required')) this.errorMessage="Password is too short";
       this.changeDetectorRef.detectChanges();
       return;
     }

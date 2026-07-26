@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { signal } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule,FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../core/auth';
 
 @Component({
   selector: 'app-income',
@@ -36,6 +36,8 @@ export class Income {
     private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
     private fb: FormBuilder,
+    private authService: AuthService,
+    
   ){
     this.inputForm = this.fb.group({
       client_nip: ['', Validators.required],
@@ -48,8 +50,8 @@ export class Income {
     });
   }
   ngOnInit(){
-    if(!sessionStorage.getItem("logged")) this.router.navigate(['/login'], {
-      queryParams: { returnUrl: this.router.url }});
+    this.authService.check_login();
+    this.authService.check_admin();
     this.get_income();
     this.get_clients();
   }
@@ -73,17 +75,20 @@ export class Income {
       this.excelData=this.excelData.filter((elem)=>elem.NIP)
       this.file_ready=true;
       this.changeDetectorRef.detectChanges();
-      console.log(this.excelData);
     };
     reader.readAsBinaryString(file);
   }
   send_income(){
-    //add tickbox for inserting clients only
-    for(let row of this.excelData){
-      row["Data wyst."]=this.toMySQLDate(row["Data wyst."]);
-      row["Netto"]=row["Netto"].replace(',','');
-    }
-    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/report/income`, {data:this.excelData
+    //add tickbox for inserting clients only, set mode=2
+    let addition="";
+    let client_only= document.getElementById("client_only") as HTMLInputElement;
+    if(!client_only.checked){
+      for(let row of this.excelData){
+        row["Data wyst."]=this.toMySQLDate(row["Data wyst."]);
+        row["Netto"]=row["Netto"].replace(',','');
+      }
+    }else addition="?mode=2";
+    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/report/income${addition}`, {data:this.excelData
       }).subscribe({
           next: data => {
               this.anal_message="";
@@ -103,7 +108,7 @@ export class Income {
     this.month=in_date.value;
     let in_client=document.getElementById("client_filter") as HTMLInputElement;
     let in_year=document.getElementById("year_filter") as HTMLInputElement;
-    this.year=in_client.value;
+    this.year=in_year.value;
     if(this.month && this.year)gets="?month="+this.month+"&year="+this.year;
     else if(this.month)gets="?month="+this.month;
     else if(this.year)gets="?year="+this.year;

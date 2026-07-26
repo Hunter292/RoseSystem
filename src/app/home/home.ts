@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TokenStorageService } from '../core/token-storage';
+import { AuthService } from '../core/auth';
 
 @Component({
   selector: 'app-home',
@@ -12,16 +13,14 @@ export class Home {
   constructor(
     private router: Router,
     private tokenService: TokenStorageService,
-    
+    private authService: AuthService,
   ){}
   is_admin=true;
   logged:boolean=false;
 
   ngOnInit(){
-    if(!sessionStorage.getItem("logged")) this.router.navigate(['/login'], {
-      queryParams: { returnUrl: this.router.url }});
-    if(sessionStorage.getItem("logged")) this.logged=true;
-    if(this.logged)this.is_admin=this.tokenService.getUser()?.admin;
+    this.authService.check_login();
+    this.is_admin=this.tokenService.getUser()?.admin;
   }
   to_task(){
     this.router.navigate(['/zadania']);
