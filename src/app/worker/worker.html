@@ -46,12 +46,12 @@
                 }
             </div>
             <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
-            <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Czynność</th><th>Data</th><th>Rozpoczęcie</th><th>Czas</th><th>Usuń</th></tr></thead>
+            <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Czynność</th><th class="w-28">Data</th><th>Początek</th><th class="w-20">Czas</th><th>Usuń</th></tr></thead>
             <tbody class="*:even:bg-gray-200 *:odd:bg-white">
                 @for(work of works;track $index){
                     <tr class="*:border *:border-gray-400 *:px-2 ">
                         <td>{{work.name}}</td><td>{{work.work_type}}</td><td>{{work.date}}</td>
-                        <td>{{work.time_start}}</td><td>{{(work.time).substring(0,(work.time).length-2)}} h</td>
+                        <td>{{(work.time_start).substring(0,5)}}</td><td>{{(work.time).substring(0,(work.time).length-2)}} h</td>
                         <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td>
                     </tr>
                     

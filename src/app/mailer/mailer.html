@@ -1,0 +1,125 @@
+<div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg">
+    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <main>
+        <section>
+            <h3 class="text-2xl text-center mb-3">Wyślij raport podatkowy</h3>
+            <form  [formGroup]="inputForm" (ngSubmit)="file_report()">
+            <div class="text-center mt-3">
+                <p class="mr-2 mb-3">Wybierz klienta: </p>
+                <select formControlName="client_nip" (change)="get_emails()" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            </div>
+            <h5 class="text-lg text-center mb-3 mt-10">Wskaż na jakie emaile wysłać wyliczenie</h5>
+            @for(item of createRange(emails);track $index){
+                <div class="flex justify-center items-center mt-3">
+                    <p class="mr-2 w-50">Wpisz email {{$index+1}}: </p>
+                    <select id="email-{{$index}}" (change)="change_email($event)" class="input-standart h-13">
+                        <option value="0"></option>
+                        @if(!client_mails.length){<option value="0">ładowanie</option>}
+                        @for(email of client_mails; track $index){
+                            <option value="{{email.email_id}}">{{email.email}}</option>
+                        }
+                    </select>
+                </div>
+            }
+            <h5 class="text-lg text-center mt-5 mb-3">Dodaj nowy email dla klienta</h5>
+            <div class="text-center  mb-10">
+                <button  [disabled]="loading" (click)="$event.preventDefault();file_email()" class="mx-9 w-32 py-3 px-10 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+                <input type="email" id="email-new" class="input-standart h-13" >
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+                @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
+            </div>
+
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wpisz VAT7: </p>
+                <input type="number" [defaultValue]="0.00" step="0.01" formControlName="VAT7" class="input-standart">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wpisz VAT7K: </p>
+                <input type="number" [defaultValue]="0.00" step="0.01" formControlName="VAT7K" class="input-standart">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wpisz VAT98: </p>
+                <input type="number" [defaultValue]="0.00" step="0.01" formControlName="VAT98" class="input-standart">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wpisz CIT8: </p>
+                <input type="number" [defaultValue]="0.00" step="0.01" formControlName="CIT8" class="input-standart">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wpisz PIT4: </p>
+                <input type="number" [defaultValue]="0.00" step="0.01" formControlName="PIT4" class="input-standart">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Wpisz ZUS: </p>
+                <input type="number" [defaultValue]="0.00" step="0.01" formControlName="ZUS" class="input-standart">
+            </div>
+            
+            <button  [disabled]="loading" type="submit" class="button-standart">Prześlij</button>
+            
+            @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
+            </form>
+        </section>
+        <section class="mt-10">
+            <h3 class="text-2xl text-center mb-3">Wysłane raporty</h3>
+            <div class="text-center mb-3">
+                <p class="mr-2 mb-3">Klient: </p>
+                <select id="client_filter" (change)="get_reports(1)" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                        <option value="">Wszyscy</option>
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            </div>
+            <div class="flex justify-evenly items-center mb-4">
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Miesiąc: </p>
+                    <select id="month_filter" (change)="get_reports(1)"  class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+                        <option value=""></option>
+                        <option value="1">Styczeń</option>
+                        <option value="2">Luty</option>
+                        <option value="3">Marzec</option>
+                        <option value="4">Kwiecień</option>
+                        <option value="5">Maj</option>
+                        <option value="6">Czerwiec</option>
+                        <option value="7">Lipiec</option>
+                        <option value="8">Sierpień</option>
+                        <option value="9">Wrzesień</option>
+                        <option value="10">Październik</option>
+                        <option value="11">Listopad</option>
+                        <option value="12">Grudzień</option>
+                    </select>
+                </div>
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Rok: </p>
+                    <input type="number" id="year_filter" (change)="get_reports(1)" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
+                </div>
+            </div>
+            <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto text-base">
+                <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Księgowa</th><th class="w-28">Data</th><th>VAT7</th><th>VAT7K</th><th>VAT98</th><th>CIT8</th><th>PIT4</th><th>ZUS</th><th>email</th></tr></thead>
+                <tbody>
+                    @if(reports_loaded){
+                        @for(report of reports;track $index){
+                            <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
+                                <td>{{report.k_name}}</td>
+                                <td>{{report.p_name}}</td>
+                                <td>{{report.date}}</td>
+                                <td class="text-right">{{report.VAT7}}</td>
+                                <td class="text-right">{{report.VAT7K}}</td>
+                                <td class="text-right">{{report.VAT98}}</td>
+                                <td class="text-right">{{report.CIT8}}</td>
+                                <td class="text-right">{{report.PIT4}}</td>
+                                <td class="text-right">{{report.ZUS}}</td>
+                                <td>{{report_email_list[$index]}}</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>

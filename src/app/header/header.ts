@@ -38,6 +38,9 @@ export class Header {
     this.router.navigate(['/faktury']);
   }
   to_hr(){
-    this.router.navigate(['/kadra']);
+    this.router.navigate(['/kadry']);
+  }
+  to_profile(){
+    this.router.navigate(['/profil']);
   }
 }

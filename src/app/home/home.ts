@@ -42,6 +42,6 @@ export class Home {
     this.router.navigate(['/faktury']);
   }
   to_hr(){
-    this.router.navigate(['/kadra']);
+    this.router.navigate(['/kadry']);
   }
 }

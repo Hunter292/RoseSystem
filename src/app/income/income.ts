@@ -3,7 +3,6 @@ import * as XLSX from 'xlsx';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule,FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../core/auth';
 
@@ -19,6 +18,7 @@ import { AuthService } from '../core/auth';
 @Injectable({providedIn: 'root'})
 export class Income {
   anal_message:String="";
+  success_message:String="";
   file_ready:boolean=false;
   excelData: Array<any>=[];
   month:String="";
@@ -33,7 +33,6 @@ export class Income {
   patch:String='';
   private http = inject(HttpClient);
   constructor(
-    private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
     private fb: FormBuilder,
     private authService: AuthService,
@@ -79,7 +78,6 @@ export class Income {
     reader.readAsBinaryString(file);
   }
   send_income(){
-    //add tickbox for inserting clients only, set mode=2
     let addition="";
     let client_only= document.getElementById("client_only") as HTMLInputElement;
     if(!client_only.checked){
@@ -93,10 +91,13 @@ export class Income {
           next: data => {
               this.anal_message="";
               this.get_income();
+              this.success_message="Dodano wpływy";
+              if(addition) this.success_message="Dodano klientów";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.detail;
+              this.anal_message = error.error.message;
+              this.success_message="";
               console.error('There was an error!', error);
               return;
           }
@@ -119,7 +120,8 @@ export class Income {
             this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
-            this.anal_message = error.error.detail;
+            this.anal_message = error.error.message;
+            this.success_message="";
             console.error('There was an error!', error);
             return;
         }
@@ -133,7 +135,8 @@ export class Income {
           this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
-          this.anal_message = error.error.detail;
+          this.anal_message = error.error.message;
+          this.success_message="";
           console.error('There was an error!', error);
           this.loading=false;
           return;
@@ -144,10 +147,12 @@ export class Income {
     this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/report/income/${this.income[id].faktura_id}`).subscribe({
         next: data => {
             this.income.splice(id,1);
+            this.success_message="Usunięto wpływ";
             this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
-            this.anal_message = error.error.detail;
+            this.anal_message = error.error.message;
+            this.success_message="";
             console.error('There was an error!', error);
             return;
         }
@@ -176,10 +181,12 @@ export class Income {
               this.anal_message="";
               this.inputForm.reset();
               this.get_income();
+              this.success_message="";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.detail;
+              this.anal_message = error.error.message;
+              this.success_message="Dodano wpłatę";
               console.error('There was an error!', error);
               this.loading=false;
               return;
@@ -194,11 +201,13 @@ export class Income {
               this.inputForm.reset();
               this.patch="";
               let today=new Date();
+              this.success_message="Zmieniono wpłatę";
               this.inputForm.get("date")?.setValue(today.getFullYear()+'-'+String(today.getMonth() + 1).padStart(2, '0')+'-'+String(today.getDate()).padStart(2, '0'));
               this.get_income();
           },
           error: (error) => {
-              this.anal_message = error.error.detail;
+              this.anal_message = error.error.message;
+              this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
               return;
@@ -220,10 +229,12 @@ export class Income {
               this.anal_message="";
               this.clients.push({"client_nip":client_nip,"name":name});
               this.clientForm.reset();
+              this.success_message="Dodano klienta";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.detail;
+              this.anal_message = error.error.message;
+              this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
               return;
@@ -239,15 +250,48 @@ export class Income {
               this.anal_message="";
               this.get_clients();
               in_client.value="";
+              this.success_message="Usunięto klienta";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.detail;
+              this.anal_message = error.error.message;
+              this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
               return;
           }
       })
+  }
+  patch_client(){
+    //add patch of client. Need extra endpoint
+    let in_client=document.getElementById("client_delete") as HTMLInputElement;
+    if(!in_client.value) return;
+    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/report/client/${in_client.value}`).subscribe({
+          next: data => {
+              this.loading=false;
+              this.anal_message="";
+              this.get_clients();
+              in_client.value="";
+              this.success_message="Usunięto klienta";
+              this.changeDetectorRef.detectChanges();
+          },
+          error: (error) => {
+              this.anal_message = error.error.message;
+              this.success_message="";
+              console.error('There was an error!', error);
+              this.loading=false;
+              return;
+          }
+      })
+  }
+  format_mula(number:number):string{
+    let text=number.toFixed(2);
+    text=text.replace('.',',');
+    let length=text.length-3;
+    if(length>3){
+      text=text.substring(0,text.length-6)+' '+text.substring(text.length-6);
+    }
+    return text;
   }
   toMySQLDate(dateStr: string): string {
     const [day, month, year] = dateStr.split('.');

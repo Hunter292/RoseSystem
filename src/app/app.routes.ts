@@ -8,6 +8,7 @@ import { Oplacalnosc } from './oplacalnosc/oplacalnosc';
 import { Staff } from './staff/staff';
 import { Worker } from './worker/worker';
 import { UserManagement } from './user-management/user-management';
+import { Mailer } from './mailer/mailer';
 
 export const routes: Routes = [
     {path:'', component: Home,data: { hideNavbar: true }},
@@ -18,7 +19,9 @@ export const routes: Routes = [
     {path:'oplacalnosc', component: Oplacalnosc},
     {path:'pracownicy', component: Staff},
     {path:'pracownicy/:id', component: Worker},
-    {path:'kadra', component: UserManagement},
+    {path:'kadry', component: UserManagement},
+    {path:'wyliczenia', component: Mailer},
+
 
     {path:'**', component: E404,data: { hideNavbar: true }}
 

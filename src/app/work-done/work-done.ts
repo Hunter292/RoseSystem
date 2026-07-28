@@ -4,7 +4,6 @@ import { signal } from '@angular/core';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../core/auth';
 
 
@@ -31,7 +30,6 @@ export class WorkDone {
   constructor(
     private fb: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef,
-    private router: Router,
     private authService: AuthService
   ){
     this.inputForm = this.fb.group({

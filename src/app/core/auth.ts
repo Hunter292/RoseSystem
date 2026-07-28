@@ -5,7 +5,6 @@ import { map, catchError } from 'rxjs/operators';
 import { TokenStorageService } from './token-storage';
 import { Router, ActivatedRoute } from '@angular/router';
 
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private currentUserSubject: BehaviorSubject<any>;
@@ -34,6 +33,7 @@ export class AuthService {
         this.tokenStorage.saveToken(response.token);
         const user = this.parseJwt(response.token);
         this.tokenStorage.saveUser(user);
+        sessionStorage.setItem("logged","yes");
         this.currentUserSubject.next(user);
         return user;
       }),
@@ -49,7 +49,7 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
   check_login(){
-    if(!sessionStorage.getItem("logged")) this.router.navigate(['/login'], {
+    if(!sessionStorage.getItem("logged")&& !this.tokenStorage.loadCookies()) this.router.navigate(['/login'], {
       queryParams: { returnUrl: this.router.url }});
   }
   check_admin(){

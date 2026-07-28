@@ -15,6 +15,7 @@
                 </label>
             </div>
             @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
         </section>
         <section class="mt-10">
             <h3 class="text-2xl text-center mb-3">Dodaj fakturę ręcznie</h3>
@@ -28,7 +29,7 @@
                 </select>
             </div>
             <div class="flex justify-center items-center mt-3">
-                <p class="mr-2 w-50">Wybierz kwotę: </p>
+                <p class="mr-2 w-50">Wpisz kwotę: </p>
                 <input type="number" step="0.01" formControlName="amount" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
             </div>
             <div class="flex justify-center items-center mt-3">
@@ -38,6 +39,7 @@
             <button  [disabled]="loading" type="submit" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
             
             @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
             </form>
         </section>
         <section class="mt-10">
@@ -54,6 +56,7 @@
             <button  [disabled]="loading" type="submit" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
             
             @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
             </form>
         </section>
         <section class="mt-10">
@@ -92,11 +95,11 @@
                 </div>
             </div>
             <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
-                <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Kwota</th><th class="w-28">Data</th><th>Zmień</th><th>Usuń</th></tr></thead>
+                <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th class="w-28">Kwota</th><th class="w-28">Data</th><th>Zmień</th><th>Usuń</th></tr></thead>
                 <tbody>
                     @for(work of income;track $index){
                         <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
-                            <td>{{work.name}}</td><td>{{work.amount.toFixed(2)}}</td><td>{{work.date}}</td>
+                            <td>{{work.name}}</td><td class="text-right">{{format_mula(work.amount)}}</td><td>{{work.date}}</td>
                             <td (click)="Patch(work)" class="bg-amber-400 cursor-pointer hover:bg-amber-600 transition-colors duration-500"></td>
                             <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td>
                         </tr>
@@ -104,6 +107,22 @@
                     }
                 </tbody>
             </table>
+        </section>
+        <section class="mt-10">
+            <h3 class="text-2xl text-center mb-3">Zmień nazwę klienta</h3>
+            <p class="mr-2 mb-3">Klient: </p>
+                <select id="client_patch"  class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                        <option value=""></option>
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            <p class="mr-2 mb-3">Nowa nazwa: </p>
+            <input type="text" id="name_patch" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+            <button  [disabled]="loading" (click)="patch_client()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+            
+            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
         </section>
         <section class="mt-10">
             <h3 class="text-2xl text-center mb-3">Usuń klienta</h3>
@@ -117,6 +136,7 @@
             <button  [disabled]="loading" (click)="delete_client()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
             
             @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
         </section>
     </main>
 </div>

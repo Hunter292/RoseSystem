@@ -52,7 +52,6 @@ export class Login {
     const { email, password} = this.loginForm.value;
     this.authService.login(email, password).subscribe({
       next: (user) => {
-        sessionStorage.setItem("logged","yes");
         this.router.navigateByUrl(this.returnUrl);
         
         this.loading = false;

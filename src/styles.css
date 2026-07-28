@@ -11,6 +11,14 @@
     --color-primary-700: #B83A4C;
     --color-primary-800: #9A2F3F;
 }
+@layer components{
+    .input-standart{
+        @apply bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2 max-w-sm focus:outline-primary-300 focus:outline-2
+    }
+    .button-standart{
+        @apply py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full
+    }
+}
 body{
     background-color: #FDF2F2;
 }

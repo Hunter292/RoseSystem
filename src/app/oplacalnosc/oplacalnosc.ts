@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../core/auth';
 @Component({
   selector: 'app-oplacalnosc',
@@ -19,7 +18,6 @@ export class Oplacalnosc {
   selected:String="";
   client_work:Array<any>=[];
   constructor(
-    private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
     private authService: AuthService
   ){}

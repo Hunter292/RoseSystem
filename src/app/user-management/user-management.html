@@ -34,6 +34,8 @@
             <button  [disabled]="loading" type="submit" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
             
             @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
+
             </form>
         </section>
         <section class="mt-10">
@@ -43,7 +45,7 @@
                 <tbody>
                     @for(worker of workers;track $index){
                         <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
-                            <td>{{worker.name}}</td><td>{{worker.email}}</td><td>{{worker.admin=="1"?"Tak":"Nie"}}</td>
+                            <td>{{worker.name}}</td><td>{{worker.email}}</td><td>{{worker.admin!="0"?"Tak":"Nie"}}</td>
                             <td (click)="Patch(worker)" class="bg-amber-400 cursor-pointer hover:bg-amber-600 transition-colors duration-500"></td>
                             <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td>
                         </tr>

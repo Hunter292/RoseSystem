@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule,FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../core/auth';
 import { TokenStorageService } from '../core/token-storage';
@@ -18,13 +17,13 @@ import { TokenStorageService } from '../core/token-storage';
 export class UserManagement {
   private http = inject(HttpClient);
   error_message:String="";
+  success_message:String="";
   loading:boolean=false;
   inputForm: FormGroup;
   workers:Array<any>=[];
   patch:number=0;
   delete:number=0;
   constructor(
-    private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
     private fb: FormBuilder,
     private authService: AuthService,
@@ -74,6 +73,7 @@ export class UserManagement {
         }).subscribe({
             next: data => {
                 this.error_message="";
+                this.success_message="Dodano użytkownika"
                 this.get_workers();
                 this.loading=false;
                 this.inputForm.reset();
@@ -83,6 +83,7 @@ export class UserManagement {
                 this.error_message = error.error.message;
                 console.error('There was an error!', error);
                 this.loading=false;
+                this.success_message="";
                 this.changeDetectorRef.detectChanges();
                 return;
             }
@@ -97,6 +98,7 @@ export class UserManagement {
         }).subscribe({
             next: data => {
                 this.error_message="";
+                this.success_message="Zmieniono użytkownika"
                 this.get_workers();
                 this.loading=false;
                 this.patch=0;
@@ -108,6 +110,7 @@ export class UserManagement {
                 console.error('There was an error!', error);
                 this.patch=0;
                 this.loading=false;
+                this.success_message="";
                 this.changeDetectorRef.detectChanges();
                 return;
             }
@@ -116,6 +119,7 @@ export class UserManagement {
   }
   Patch(worker:any){
     this.inputForm.reset();
+    this.success_message="";
     this.inputForm.get("name")?.setValue(worker.name);
     this.inputForm.get("email")?.setValue(worker.email);
     let box=document.getElementById("admin_box") as HTMLInputElement;
@@ -137,7 +141,7 @@ export class UserManagement {
     this.loading=true;
     id=this.delete-1;
     let elem=document.getElementById("admin_pass") as HTMLInputElement;
-    if(!elem.value||(elem.value).length<8){
+    if(!elem.value||(elem.value).length<4){
       this.error_message="Za krótkie hasło";
       return;
     }
@@ -146,6 +150,7 @@ export class UserManagement {
             this.workers.splice(id,1);
             this.delete=0;
             this.loading=false;
+            this.success_message="Usunięto użytkownika";
             this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
@@ -153,6 +158,7 @@ export class UserManagement {
             console.error('There was an error!', error);
             this.delete=0;
             this.loading=false;
+            this.success_message="";
             this.changeDetectorRef.detectChanges();
             return;
         }
