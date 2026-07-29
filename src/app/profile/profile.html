@@ -1,0 +1,33 @@
+<div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg">
+    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <main>
+        
+        <section class="mt-10" id="worker_form">
+            <h3 class="text-2xl text-center mb-3">Panel użytkownika</h3>
+            <form  [formGroup]="inputForm" (ngSubmit)="patch_worker()">
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-30">Imię:</p>
+                <input type="text" [value]="data.name" disabled class="input-standart">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-30">Email:</p>
+                <input type="email" formControlName="email" class="input-standart">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-30">Nowe hasło (opcjonalne):</p>
+                <input type="text" formControlName="password" class="input-standart">
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-30">Twoje hasło:</p>
+                <input type="text" formControlName="pass" class="input-standart">
+            </div>
+            
+            <button  [disabled]="loading" type="submit" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Zmień dane</button>
+            
+            @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
+
+            </form>
+        </section>
+    </main>
+</div>

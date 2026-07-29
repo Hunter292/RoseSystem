@@ -42,7 +42,7 @@
             <button  [disabled]="loading" (click)="get_work()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Generuj</button>
             <div class="md:grid md:grid-cols-2 gap-y-2 divide-y-2 divide-solid divide-primary-300 p-2 text-xl text-right my-4">
                 @for(job of job_list; track $index){
-                    <p>{{job}}: {{(jobs.get(job))?.toFixed(2)}}</p>
+                    <p>{{job}}: {{(jobs.get(job))?.toFixed(2)}} h</p>
                 }
             </div>
             <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">

@@ -35,23 +35,18 @@ export class Mailer {
   ){
     this.inputForm = this.fb.group({
       client_nip: ['', Validators.required],
-      VAT7: ['', Validators.required],
-      VAT7K: ['',Validators.required],
-      VAT98: ['',Validators.required],
-      CIT8: ['',Validators.required],
-      PIT4: ['',Validators.required],
-      ZUS: ['',Validators.required],
+      VAT7: ['', ],
+      VAT7K: ['',],
+      VAT98: ['',],
+      CIT8: ['',],
+      PIT4: ['',],
+      ZUS: ['',],
 
     });
   }
   ngOnInit(){
     this.authService.check_login();
-    this.inputForm.get("VAT7")?.setValue(0.00);
-    this.inputForm.get("VAT7K")?.setValue(0.00);
-    this.inputForm.get("VAT98")?.setValue(0.00);
-    this.inputForm.get("CIT8")?.setValue(0.00);
-    this.inputForm.get("PIT4")?.setValue(0.00);
-    this.inputForm.get("ZUS")?.setValue(0.00);
+    
 
     this.load_reports();
     this.get_clients();
@@ -60,7 +55,6 @@ export class Mailer {
     this.reports_loaded=false;
     await this.get_reports(1);
     this.get_reports(2);
-    console.log()
   }
   async get_reports(mode:number=1):Promise<void>{
     this.loading=true;
@@ -76,7 +70,6 @@ export class Mailer {
     if(in_client.value) gets="?client="+in_client.value;
     if(in_client.value || year || month) gets+="&mode="+mode;
     else gets="?mode="+mode;
-    console.log(`${sessionStorage.getItem("apiURL")}/mailer${gets}`);
     try{
       const response = await firstValueFrom(
         this.http.get<any>(`${sessionStorage.getItem("apiURL")}/mailer${gets}`)
@@ -135,6 +128,7 @@ export class Mailer {
     this.http.get<any>(`${sessionStorage.getItem("apiURL")}/client_mail/${nip}`).subscribe({
       next: data => {
           this.client_mails=data;
+          if(!this.client_mails.length) this.client_mails.push({email_id:'0',email:"Brak znanych emaile"})
           this.emails=1;
           this.loading=false;
           this.changeDetectorRef.detectChanges();
@@ -150,19 +144,46 @@ export class Mailer {
     })
   }
   file_report(){
-    this.loading=true;
-    const{client_nip,VAT7,VAT7K,VAT98,CIT8,PIT4,ZUS}=this.inputForm.value;
+    if(this.inputForm.invalid){
+      this.success_message="";
+      this.error_message="Brakuje danych";
+      return;
+    }
+    let {client_nip,VAT7,VAT7K,VAT98,CIT8,PIT4,ZUS}=this.inputForm.value;
+    if(!VAT7)VAT7=0;
+    if(!VAT7K)VAT7K=0;
+    if(!VAT98)VAT98=0;
+    if(!CIT8)CIT8=0;
+    if(!PIT4)PIT4=0;
+    if(!ZUS)ZUS=0;
+
     let emails=[];
     let elem;
     for(let i=0;i<this.emails-1;i++){
       elem=document.getElementById("email-"+i) as HTMLInputElement;
+      if(elem.value=="0"){
+        this.success_message="";
+        this.error_message="Proszę wybrać email";
+        return;
+      }
       emails.push(elem.value);
     }
+    if(!emails.length){
+      this.success_message="";
+      this.error_message="Proszę wybrać email";
+      return;
+    }
+    this.loading=true;
     this.http.post<any>(`${sessionStorage.getItem("apiURL")}/mailer`,{client_nip:client_nip,VAT7:VAT7,VAT7K:VAT7K,VAT98:VAT98,CIT8:CIT8,PIT4:PIT4,ZUS:ZUS,emails:emails}).subscribe({
       next: data => {
           this.loading=false;
-          this.inputForm.reset();
+          let elem;
+          for(let i=this.emails-2;i>=0;i--){
+            elem=document.getElementById("email-"+i) as HTMLInputElement;
+            elem.value="0";
+          }
           this.emails=1;
+          this.inputForm.reset();
           this.error_message="";
           this.success_message="Mail został wysłany";
           this.load_reports();
@@ -179,7 +200,7 @@ export class Mailer {
     })
   }
   process_mail(){
-    // add am actual mailer in the back,fix income, add profile for regular user, add mail recovery,
+    // add am actual mailer in the back, add mail recovery,
     // add extra data validation in the back, add comments,complete documentation and make user manual
     let previous=0;
     let text=""
@@ -188,7 +209,7 @@ export class Mailer {
         if(previous)this.report_email_list.push(text);
         previous=email.report_id;
         text=email.email;
-      }else text+="\n\r"+email.email;
+      }else text+="\n"+email.email;
     }
     this.report_email_list.push(text);
     this.reports_loaded=true;
@@ -202,7 +223,6 @@ export class Mailer {
     this.emails+=1;
   }
   file_email(){
-    this.loading=true;
     let nip=this.inputForm.get("client_nip")?.value;
     if(!nip){
       this.success_message="";
@@ -217,7 +237,7 @@ export class Mailer {
       this.error_message="Nieprawidłowy email";
       return;
     }
-
+    this.loading=true;
     this.http.post<any>(`${sessionStorage.getItem("apiURL")}/client_mail/${nip}`,{email:email}).subscribe({
       next: data => {
           this.get_emails();
@@ -225,6 +245,11 @@ export class Mailer {
           this.success_message="Dodano mail";
           input.value="";
           this.error_message="";
+          let elem;
+          for(let i=this.emails-2;i>=0;i--){
+            elem=document.getElementById("email-"+i) as HTMLInputElement;
+            elem.value="0";
+          }
           this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
@@ -236,6 +261,14 @@ export class Mailer {
           return;
       }
     })
+  }
+  format_mula(text:string):string{
+    text=text.replace('.',',');
+    let length=text.length-3;
+    if(length>3){
+      text=text.substring(0,text.length-6)+'\u00A0'+text.substring(text.length-6);
+    }
+    return text;
   }
   createRange(number:number){
   // return new Array(number);

@@ -20,6 +20,7 @@ import { AuthService } from '../core/auth';
 export class WorkDone {
   inputForm: FormGroup;
   errorMessage: string | null = null;
+  success_message:string="";
   loading = true;
   clients: Array<any>=[];
   work_done:Array<any>=[];
@@ -73,6 +74,7 @@ export class WorkDone {
           next: data => {
               this.loading=false;
               this.errorMessage="";
+              this.success_message="Dodano czynność";
               this.inputForm.reset();
               this.inputForm.get("client_nip")?.setValue(client_nip);
               this.get_work();
@@ -80,6 +82,7 @@ export class WorkDone {
           },
           error: (error) => {
               this.errorMessage = error.error.detail;
+              this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
               return;
@@ -91,6 +94,7 @@ export class WorkDone {
       }).subscribe({
           next: data => {
               this.loading=false;
+              this.success_message="Zmodyfikowano czynność";
               this.errorMessage="";
               this.inputForm.reset();
               this.patch=0;
@@ -100,6 +104,7 @@ export class WorkDone {
           },
           error: (error) => {
               this.errorMessage = error.error.detail;
+              this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
               return;
@@ -126,6 +131,7 @@ export class WorkDone {
         },
         error: (error) => {
             this.errorMessage = error.error.detail;
+            this.success_message="";
             console.error('There was an error!', error);
             return;
         }

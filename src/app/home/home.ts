@@ -44,4 +44,7 @@ export class Home {
   to_hr(){
     this.router.navigate(['/kadry']);
   }
+  to_profile(){
+    this.router.navigate(['/profil']);
+  }
 }

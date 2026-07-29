@@ -9,6 +9,11 @@
                 <span>Wysyłanie wyliczeń</span>
             </div>
         </div>
+        @if(!is_admin){
+            <div (click)="to_profile()"  class=" bg-primary-500 rounded-2xl mb-2 h-24 content-center text-xl sm:text-2xl hover:bg-primary-700 hover:text-amber-300 transition-colors duration-500 cursor-pointer">
+                <span>Profil</span>
+            </div>
+        }
         @if(is_admin){
             <div (click)="to_stats()"  class=" bg-primary-500 rounded-2xl mb-2 h-24 content-center text-xl sm:text-2xl hover:bg-primary-700 hover:text-amber-300 transition-colors duration-500 cursor-pointer">
                 <span>Opłacalność klientów</span>

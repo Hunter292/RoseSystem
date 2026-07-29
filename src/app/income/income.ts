@@ -263,16 +263,22 @@ export class Income {
       })
   }
   patch_client(){
-    //add patch of client. Need extra endpoint
-    let in_client=document.getElementById("client_delete") as HTMLInputElement;
-    if(!in_client.value) return;
-    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/report/client/${in_client.value}`).subscribe({
+    this.loading=true;
+    let in_client=document.getElementById("client_patch") as HTMLInputElement;
+    let in_name=document.getElementById("name_patch") as HTMLInputElement;
+    if(!in_client.value|| in_name.value){
+      this.success_message="";
+      this.anal_message="Wybierz klienta i podaj nazwę";
+      return;
+    }
+    this.http.patch<any>(`${sessionStorage.getItem("apiURL")}/report/client/${in_client.value}`,{name:in_name.value}).subscribe({
           next: data => {
               this.loading=false;
               this.anal_message="";
               this.get_clients();
               in_client.value="";
-              this.success_message="Usunięto klienta";
+              in_name.value="";
+              this.success_message="Zmodyfikowano klienta";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {

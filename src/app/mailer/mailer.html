@@ -99,27 +99,30 @@
                     <input type="number" id="year_filter" (change)="get_reports(1)" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
                 </div>
             </div>
-            <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto text-base">
-                <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Księgowa</th><th class="w-28">Data</th><th>VAT7</th><th>VAT7K</th><th>VAT98</th><th>CIT8</th><th>PIT4</th><th>ZUS</th><th>email</th></tr></thead>
-                <tbody>
-                    @if(reports_loaded){
-                        @for(report of reports;track $index){
-                            <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
-                                <td>{{report.k_name}}</td>
-                                <td>{{report.p_name}}</td>
-                                <td>{{report.date}}</td>
-                                <td class="text-right">{{report.VAT7}}</td>
-                                <td class="text-right">{{report.VAT7K}}</td>
-                                <td class="text-right">{{report.VAT98}}</td>
-                                <td class="text-right">{{report.CIT8}}</td>
-                                <td class="text-right">{{report.PIT4}}</td>
-                                <td class="text-right">{{report.ZUS}}</td>
-                                <td>{{report_email_list[$index]}}</td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
+            
         </section>
     </main>
+</div>
+<div class="mx-5 my-10 ">
+    <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto text-sm lg:text-base">
+        <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Księgowa</th><th class="w-26">Data</th><th>VAT7</th><th>VAT7K</th><th>VAT98</th><th>CIT8</th><th>PIT4</th><th>ZUS</th><th>email</th></tr></thead>
+        <tbody>
+            @if(reports_loaded){
+                @for(report of reports;track $index){
+                    <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
+                        <td>{{report.k_name}}</td>
+                        <td>{{report.p_name}}</td>
+                        <td>{{report.date}}</td>
+                        <td class="text-right">{{format_mula(report.VAT7)}}</td>
+                        <td class="text-right">{{format_mula(report.VAT7K)}}</td>
+                        <td class="text-right">{{format_mula(report.VAT98)}}</td>
+                        <td class="text-right">{{format_mula(report.CIT8)}}</td>
+                        <td class="text-right">{{format_mula(report.PIT4)}}</td>
+                        <td class="text-right">{{format_mula(report.ZUS)}}</td>
+                        <td>{{report_email_list[$index]}}</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 </div>
