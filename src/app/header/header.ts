@@ -21,6 +21,9 @@ export class Header {
   to_task(){
     this.router.navigate(['/zadania']);
   }
+  to_timer(){
+    this.router.navigate(['/timer']);
+  }
   to_mailer(){
     this.router.navigate(['/wyliczenia']);
   }

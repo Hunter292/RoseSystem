@@ -7,20 +7,20 @@
             <form  [formGroup]="inputForm" (ngSubmit)="file_worker()">
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2 w-30">Imię:</p>
-                <input type="text" formControlName="name" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                <input type="text" formControlName="name" class="input-standart">
             </div>
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2 w-30">Email:</p>
-                <input type="text" formControlName="email" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                <input type="text" formControlName="email" class="input-standart">
             </div>
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2 w-30">Hasło:</p>
-                <input type="text" formControlName="password" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                <input type="text" formControlName="password" class="input-standart">
             </div>
             
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2 w-30">Twoje hasło:</p>
-                <input type="text" formControlName="pass_admin" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                <input type="text" formControlName="pass_admin" class="input-standart">
             </div>
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2">Nadaj status Admina:</p>
@@ -60,9 +60,28 @@
                 <h3 class="text-2xl text-center mb-3">Podaj hasło</h3>
                 <div class="flex justify-center items-center mt-3">
                     <p class="mr-2 w-30">Twoje hasło:</p>
-                    <input type="text" id="admin_pass" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                    <input type="text" id="admin_pass" class="input-standart">
                 </div>
-                <button  [disabled]="loading" (click)="Delete()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+                <button  [disabled]="loading" (click)="Delete(edited_worker)" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            </div>
+        </div>
+    }
+    @if(edited_worker){
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 ">
+            <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
+                <h3 class="text-2xl text-center mb-3">Wybierz czynność</h3>
+                <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
+                    <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Imie</th><th>Email</th><th>Admin</th></tr></thead>
+                    <tbody>
+                        <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
+                            <td>{{edited_worker.name}}</td><td>{{edited_worker.email}}</td><td>{{edited_worker.admin!="0"?"Tak":"Nie"}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button  [disabled]="loading" (click)="Patch(edited_worker)" class="button-standart mr-2 bg-amber-400 hover:bg-amber-600">Zmień</button>
+                <button  [disabled]="loading" (click)="Delete(edited_worker)" class="button-standart mr-2 bg-red-500 hover:bg-red-700">Usuń</button>
+                <button  [disabled]="loading" (click)="edited_worker=null" class="button-standart">Anuluj</button>
                 @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
             </div>
         </div>

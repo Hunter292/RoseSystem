@@ -22,7 +22,8 @@ export class UserManagement {
   inputForm: FormGroup;
   workers:Array<any>=[];
   patch:number=0;
-  delete:number=0;
+  delete:any=null;
+  edited_worker:any=null;
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
     private fb: FormBuilder,
@@ -117,8 +118,12 @@ export class UserManagement {
         })
     }
   }
+  Edit(work:any){
+    this.edited_worker=work;
+  }
   Patch(worker:any){
     this.inputForm.reset();
+    this.edited_worker=null;
     this.success_message="";
     this.inputForm.get("name")?.setValue(worker.name);
     this.inputForm.get("email")?.setValue(worker.email);
@@ -127,28 +132,27 @@ export class UserManagement {
     document.body.scrollTop = 0; 
     document.documentElement.scrollTop = 0; 
     this.patch=worker.employee_id;
-    console.log(this.patch);
   }
-  Delete(id:number=0){
+  Delete(worker:any){
     if(!this.delete){
-      if(this.workers[id].employee_id==this.tokenService.getUser().id){
+      if(worker.employee_id==this.tokenService.getUser().id){
         this.error_message="Prosimy o nie dokonywanie samoterminacji";
         return;
       }
-      this.delete=id+1;
+      this.delete=this.edited_worker;
+      this.edited_worker=null;
       return;
     }
-    this.loading=true;
-    id=this.delete-1;
     let elem=document.getElementById("admin_pass") as HTMLInputElement;
     if(!elem.value||(elem.value).length<4){
       this.error_message="Za krótkie hasło";
       return;
     }
-    this.http.request<any>("DELETE",`${sessionStorage.getItem("apiURL")}/register/${this.workers[id].employee_id}`,{body:{pass_admin:elem.value}}).subscribe({
+    this.loading=true;
+    this.http.request<any>("DELETE",`${sessionStorage.getItem("apiURL")}/register/${this.delete.employee_id}`,{body:{pass_admin:elem.value}}).subscribe({
         next: data => {
-            this.workers.splice(id,1);
-            this.delete=0;
+            this.workers.splice(this.workers.indexOf(this.delete),1);
+            this.delete=null;
             this.loading=false;
             this.success_message="Usunięto użytkownika";
             this.changeDetectorRef.detectChanges();

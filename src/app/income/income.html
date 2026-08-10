@@ -14,7 +14,7 @@
                     </div>
                 </label>
             </div>
-            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
             @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
         </section>
         <section class="mt-10">
@@ -30,15 +30,15 @@
             </div>
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2 w-50">Wpisz kwotę: </p>
-                <input type="number" step="0.01" formControlName="amount" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                <input type="number" step="0.01" formControlName="amount" class="input-standart">
             </div>
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2 w-50">Wybierz datę: </p>
-                <input type="date" formControlName="date" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                <input type="date" formControlName="date" class="input-standart">
             </div>
             <button  [disabled]="loading" type="submit" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
             
-            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
             @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
             </form>
         </section>
@@ -47,15 +47,15 @@
             <form  [formGroup]="clientForm" (ngSubmit)="file_client()">
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2 w-50">Wpisz nazwę: </p>
-                <input type="text" formControlName="name" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                <input type="text" formControlName="name" class="input-standart">
             </div>
             <div class="flex justify-center items-center mt-3">
                 <p class="mr-2 w-50">Wpisz nip: </p>
-                <input type="text"  formControlName="client_nip" class="bg-gray-100 p-3 text-base w-full sm:w-3/4 md:w-1/2  focus:outline-primary-300 focus:outline-2">
+                <input type="text"  formControlName="client_nip" class="input-standart">
             </div>
             <button  [disabled]="loading" type="submit" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
             
-            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
             @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
             </form>
         </section>
@@ -121,7 +121,7 @@
             <input type="text" id="name_patch" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
             <button  [disabled]="loading" (click)="patch_client()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
             
-            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
             @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
         </section>
         <section class="mt-10">
@@ -135,8 +135,27 @@
                 </select>
             <button  [disabled]="loading" (click)="delete_client()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
             
-            @if(anal_message){<div class="text-red-600">{{ anal_message }}</div>}
+            @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
             @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
         </section>
     </main>
+    @if(edited_income){
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 ">
+            <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
+                <h3 class="text-2xl text-center mb-3">Wybierz czynność</h3>
+                <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
+                    <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th class="w-28">Kwota</th><th class="w-28">Data</th></tr></thead>
+                    <tbody>
+                        <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
+                            <td>{{edited_income.name}}</td><td class="text-right">{{format_mula(edited_income.amount)}}</td><td>{{edited_income.date}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button  [disabled]="loading" (click)="Patch(edited_income)" class="button-standart mr-2 bg-amber-400 hover:bg-amber-600">Zmień</button>
+                <button  [disabled]="loading" (click)="Delete(edited_income)" class="button-standart mr-2 bg-red-500 hover:bg-red-700">Usuń</button>
+                <button  [disabled]="loading" (click)="edited_income=null" class="button-standart">Anuluj</button>
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            </div>
+        </div>
+    }
 </div>

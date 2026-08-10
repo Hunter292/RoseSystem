@@ -68,8 +68,8 @@ export class Staff {
       if(staff.email!=previous){
         if(previous){
           let list:Array<String>=[];
-          //for(let job of this.job_list) inner_code+="<p>"+job+": "+jobs.get(job)+"</p>";
           for(let job of this.job_list) list.push(jobs.get(job));
+          //for(let job of this.job_list) inner_code+="<p>"+job+": "+jobs.get(job)+"</p>";
           //inner_code+="</div>";
           //http_code+=head+sum.toFixed(2)+"</p></div>";
           //http_code+=inner_code;

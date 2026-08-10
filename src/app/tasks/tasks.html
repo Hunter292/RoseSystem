@@ -1,0 +1,189 @@
+<div class="container-standart">
+    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <main>
+        <section>
+            <h3 class="text-2xl text-center mb-3">Dodaj czynność</h3>
+            <form  [formGroup]="inputForm" (ngSubmit)="file_task()">
+                <div class="text-center mt-3">
+                    <p class="mr-2">Wybierz klienta: </p>
+                    <select id="client_pick" formControlName="client_nip" class="input-standart">
+                        <option value="0">Wewnętrzne</option>
+                        @for(client of clients; track $index){
+                            <option value="{{client.client_nip}}">{{client.name}}</option>
+                        }
+                    </select>
+                </div>
+                <div class="flex justify-center items-center mt-3">
+                    <p class="mr-2 w-50">Opis</p>
+                    <textarea class="input-standart" formControlName="desc"></textarea>
+                </div>
+                <div class="flex justify-center items-center mt-3">
+                    <p class="mr-2 w-50">Wskaż deadline: </p>
+                    <input type="date" [min]="util.get_date_str()" formControlName="date" class="input-standart">
+                </div>
+                <div class="flex justify-center items-center mt-3">
+                    <p class="mr-2">Zadanie Priorytetowe</p>
+                    <label class="toggler-wrapper style-1">
+                        <input type="checkbox" id="client_only">
+                        <div class="toggler-slider">
+                            <div class="toggler-knob"></div>
+                        </div>
+                    </label>
+                </div>
+                <h5 class="text-lg text-center mb-3 mt-10">Dodaj adresatów</h5>
+                @for(item of createRange(users);track $index){
+                    <div class="flex justify-center items-center mt-3">
+                        <p class="mr-2 w-50">Wybierz pracownika {{$index+1}}: </p>
+                        <select id="user-{{$index}}" (change)="change_user($event)" class="input-standart h-13">
+                            <option value="0"></option>
+                            @if(!workers.length){<option value="0">ładowanie</option>}
+                            @for(worker of workers; track $index){
+                                <option value="{{worker.employee_id}}">{{worker.name}}</option>
+                            }
+                        </select>
+                    </div>
+                }
+                @if(error_message){<div class="text-red-600 ">{{ error_message }}</div>}
+                @if(success_message){<div class="text-green-600 ">{{ success_message }}</div>}
+
+                <button type="submit" [disabled]="loading" class="button-standart">Zapisz</button>
+
+            </form>
+        </section>
+        <section>
+            <h3 class="text-2xl text-center mb-3">Zadania do wykonania</h3>
+            @for(task of to_user_tasks;track $index){
+            <div>
+                <div>
+                    @if(task.priority=="1"){<h4 class="text-xl text-center mb-3 text-red-400">Priorytet</h4>}
+                    <p>{{task.description}}</p>
+                    <div class="grid grid-cols-4">
+                        <div>
+                            <p>Autor:</p>
+                            <p>{{task.name}}</p>
+                        </div>
+                        <div>
+                            <p>Termin:</p>
+                            <p>{{task.deadline}}</p>
+                        </div>
+                        <div>
+                            <p>Data zlecenia:</p>
+                            <p>{{task.date}}</p>
+                        </div>
+                        <div>
+                            <p>Status: {{translate_status(to_user_tasks_status[$index])}}</p>
+                            <button class="button-standart" (click)="change_status(task)">Zmień status</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3">
+                    <h4 class="text-xl text-center mb-3">Pracownicy:</h4>
+                    @for(member of to_user_tasks_proccessed[$index];track $index){
+                        <div [classList]="color_status(member.status)">
+                            <div>
+                                <p>{{member.name}}</p>
+                                <p>{{member.email}}</p>
+                            </div>
+                            <p>Status: {{translate_status(member.status)}}</p>
+                        </div>
+                    }
+                </div>
+            </div>
+            }
+        </section>
+        <section>
+            <h3 class="text-2xl text-center mb-3">Zadanie przez Ciebie wydane</h3>
+            @for(task of users_tasks;track $index){
+            <div>
+                <div>
+                    @if(task.priority=="1"){<h4 class="text-xl text-center mb-3 text-red-400">Priorytet</h4>}
+                    <p>{{task.description}}</p>
+                    <div class="grid grid-cols-4">
+                        <div>
+                            <p>Termin:</p>
+                            <p>{{task.deadline}}</p>
+                        </div>
+                        <div>
+                            <p>Data zlecenia:</p>
+                            <p>{{task.date}}</p>
+                        </div>
+                        <div>
+                            <button class="button-standart" (click)="Edit_task(task)">Edytuj zadanie</button>
+                        </div>
+                        <div>
+                            <button class="button-standart" (click)="add_to_task(task)">Dodaj pracownika</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3">
+                    <h4 class="text-xl text-center mb-3">Pracownicy:</h4>
+                    @for(member of users_tasks_proccessed[$index];track $index){
+                        <div [classList]="color_status(member.status)">
+                            <div>
+                                <p>{{member.name}}</p>
+                                <p>{{member.email}}</p>
+                            </div>
+                            <p>Status: {{translate_status(member.status)}}</p>
+                            <button class="button-standart" (click)="remove_from_task(task.task_id,member)">Usuń</button>
+                        </div>
+                    }
+                </div>
+            </div>
+            }
+        </section>
+    </main>
+    @if(task_status){
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 ">
+            <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
+                <h3 class="text-2xl text-center mb-3">Jaki status nadać</h3>
+                <p>{{task_status.description}}</p>
+                <button  [disabled]="loading" (click)="change_status(task_status,0)" class="button-standart mr-2 bg-amber-400 hover:bg-amber-600">Zapoznano się</button>
+                <button  [disabled]="loading" (click)="change_status(task_status,1)" class="button-standart mr-2 bg-green-300 hover:bg-green-500">W trakcie</button>
+                <button  [disabled]="loading" (click)="change_status(task_status,1)" class="button-standart mr-2 bg-green-500 hover:bg-green-700">Wykonano</button>
+                <button  [disabled]="loading" (click)="task_status=null" class="button-standart">Anuluj</button>
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            </div>
+        </div>
+    }
+    @if(edited_task && edited_worker){
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 ">
+            <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
+                <h3 class="text-2xl text-center mb-3">Czy jesteś pewna?</h3>
+                <p>{{edited_task.description}}</p>
+                <p>edited_worker.name</p>
+                <button  [disabled]="loading" (click)="remove_from_task(edited_task,1)" class="button-standart mr-2 bg-red-500 hover:bg-red-700">Usuń</button>
+                <button  [disabled]="loading" (click)="edited_task=null;edited_worker=null" class="button-standart">Anuluj</button>
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            </div>
+        </div>
+    }
+    @if(edited_task && !edited_worker){
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 ">
+            <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
+                <h3 class="text-2xl text-center mb-3">Wybierz czynność</h3>
+                <p>{{edited_task.description}}</p>
+                <button  [disabled]="loading" (click)="Patch()" class="button-standart mr-2 bg-amber-400 hover:bg-amber-600">Zmień</button>
+                <button  [disabled]="loading" (click)="Delete()" class="button-standart mr-2 bg-red-500 hover:bg-red-700">Usuń</button>
+                <button  [disabled]="loading" (click)="edited_task=null" class="button-standart">Anuluj</button>
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            </div>
+        </div>
+    }
+    @if(to_task){
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 ">
+            <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
+                <h3 class="text-2xl text-center mb-3">Wybierz pracownika do dodania</h3>
+                <div class="text-center mt-3">
+                    <select id="input_add_worker" class="input-standart">
+                        @for(worker of workers; track $index){
+                            <option value="{{$index}}">{{worker.name}}</option>
+                        }
+                    </select>
+                </div>
+                <button  [disabled]="loading" (click)="add_to_task(to_task)" class="button-standart mr-2 bg-green-500 hover:bg-green-700">Dodaj</button>
+                <button  [disabled]="loading" (click)="to_task=null" class="button-standart">Anuluj</button>
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            </div>
+        </div>
+    }
+</div>

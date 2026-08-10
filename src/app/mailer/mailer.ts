@@ -57,7 +57,6 @@ export class Mailer {
     this.get_reports(2);
   }
   async get_reports(mode:number=1):Promise<void>{
-    this.loading=true;
     let gets="";
     let in_date=document.getElementById("month_filter") as HTMLInputElement;
     let month=in_date.value;
@@ -147,16 +146,23 @@ export class Mailer {
     if(this.inputForm.invalid){
       this.success_message="";
       this.error_message="Brakuje danych";
+      this.changeDetectorRef.detectChanges();
       return;
     }
     let {client_nip,VAT7,VAT7K,VAT98,CIT8,PIT4,ZUS}=this.inputForm.value;
-    if(!VAT7)VAT7=0;
-    if(!VAT7K)VAT7K=0;
-    if(!VAT98)VAT98=0;
-    if(!CIT8)CIT8=0;
-    if(!PIT4)PIT4=0;
-    if(!ZUS)ZUS=0;
-
+    let taxes=[VAT7,VAT7K,VAT98,CIT8,PIT4,ZUS];
+    const pattern=/^\d+\.*\d*$/;
+    for(let i=0;i<6;i++){
+      if(!taxes[i]) taxes[i]="0";
+      taxes[i]=taxes[i].replace(',','.');
+      taxes[i]=taxes[i].replace(' ','');
+      if(!pattern.test(taxes[i])){
+        this.success_message="";
+        this.error_message="Wpisane kwoty nie są liczbami";
+        this.changeDetectorRef.detectChanges();
+        return;
+      }
+    }
     let emails=[];
     let elem;
     for(let i=0;i<this.emails-1;i++){
@@ -164,6 +170,7 @@ export class Mailer {
       if(elem.value=="0"){
         this.success_message="";
         this.error_message="Proszę wybrać email";
+        this.changeDetectorRef.detectChanges();
         return;
       }
       emails.push(elem.value);
@@ -171,10 +178,11 @@ export class Mailer {
     if(!emails.length){
       this.success_message="";
       this.error_message="Proszę wybrać email";
+      this.changeDetectorRef.detectChanges();
       return;
     }
     this.loading=true;
-    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/mailer`,{client_nip:client_nip,VAT7:VAT7,VAT7K:VAT7K,VAT98:VAT98,CIT8:CIT8,PIT4:PIT4,ZUS:ZUS,emails:emails}).subscribe({
+    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/mailer`,{client_nip:client_nip,VAT7:taxes[0],VAT7K:taxes[1],VAT98:taxes[2],CIT8:taxes[3],PIT4:taxes[4],ZUS:taxes[5],emails:emails}).subscribe({
       next: data => {
           this.loading=false;
           let elem;
@@ -190,7 +198,7 @@ export class Mailer {
           this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
-          this.error_message = error.error.message;
+          this.error_message = error.error.details;
           this.success_message="";
           console.error('There was an error!', error);
           this.loading=false;
@@ -274,5 +282,5 @@ export class Mailer {
   // return new Array(number);
   return new Array(number).fill(0)
     .map((n, index) => index + 1);
-}
+  }
 }

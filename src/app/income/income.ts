@@ -17,7 +17,7 @@ import { AuthService } from '../core/auth';
 })
 @Injectable({providedIn: 'root'})
 export class Income {
-  anal_message:String="";
+  error_message:String="";
   success_message:String="";
   file_ready:boolean=false;
   excelData: Array<any>=[];
@@ -31,6 +31,7 @@ export class Income {
   loading = true;
   clients: Array<any>=[];
   patch:String='';
+  edited_income:any=null;
   private http = inject(HttpClient);
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -62,7 +63,7 @@ export class Income {
     }
     const file = input.files[0];
     if(!["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"].find((elem)=>elem==file.type)){
-      this.anal_message="Wrong file format";
+      this.error_message="Wrong file format";
       return;
     }
     const reader = new FileReader();
@@ -89,14 +90,14 @@ export class Income {
     this.http.post<any>(`${sessionStorage.getItem("apiURL")}/report/income${addition}`, {data:this.excelData
       }).subscribe({
           next: data => {
-              this.anal_message="";
+              this.error_message="";
               this.get_income();
               this.success_message="Dodano wpływy";
               if(addition) this.success_message="Dodano klientów";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.message;
+              this.error_message = error.error.message;
               this.success_message="";
               console.error('There was an error!', error);
               return;
@@ -120,7 +121,7 @@ export class Income {
             this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
-            this.anal_message = error.error.message;
+            this.error_message = error.error.message;
             this.success_message="";
             console.error('There was an error!', error);
             return;
@@ -135,7 +136,7 @@ export class Income {
           this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
-          this.anal_message = error.error.message;
+          this.error_message = error.error.message;
           this.success_message="";
           console.error('There was an error!', error);
           this.loading=false;
@@ -143,22 +144,30 @@ export class Income {
       }
     })
   }
-  Delete(id:any){
-    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/report/income/${this.income[id].faktura_id}`).subscribe({
+  Edit(income:any){
+    this.edited_income=income;
+  }
+  Delete(income:any){
+    this.loading=true;
+    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/report/income/${income.faktura_id}`).subscribe({
         next: data => {
-            this.income.splice(id,1);
+            this.income.splice(this.income.indexOf(income),1);
+            this.edited_income=null;
             this.success_message="Usunięto wpływ";
+            this.loading=false;
             this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
-            this.anal_message = error.error.message;
+            this.error_message = error.error.message;
             this.success_message="";
+            this.loading=false;
             console.error('There was an error!', error);
             return;
         }
       })
   }
   Patch(inc:any){
+    this.edited_income=null;
     this.inputForm.get("client_nip")?.setValue(inc.client_nip);
     this.inputForm.get("amount")?.setValue(inc.amount);
     this.inputForm.get("date")?.setValue(inc.date);
@@ -168,7 +177,7 @@ export class Income {
   }
   file_income(){
     if(this.inputForm.invalid){
-      this.anal_message="Brakuje informacji";
+      this.error_message="Brakuje informacji";
       return;
     }
     const {client_nip, amount, date}=this.inputForm.value;
@@ -178,14 +187,14 @@ export class Income {
       }).subscribe({
           next: data => {
               this.loading=false;
-              this.anal_message="";
+              this.error_message="";
               this.inputForm.reset();
               this.get_income();
               this.success_message="";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.message;
+              this.error_message = error.error.message;
               this.success_message="Dodano wpłatę";
               console.error('There was an error!', error);
               this.loading=false;
@@ -197,7 +206,7 @@ export class Income {
       }).subscribe({
           next: data => {
               this.loading=false;
-              this.anal_message="";
+              this.error_message="";
               this.inputForm.reset();
               this.patch="";
               let today=new Date();
@@ -206,7 +215,7 @@ export class Income {
               this.get_income();
           },
           error: (error) => {
-              this.anal_message = error.error.message;
+              this.error_message = error.error.message;
               this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
@@ -217,7 +226,7 @@ export class Income {
   }
   file_client(){
     if(this.clientForm.invalid){
-      this.anal_message="Brakuje informacji";
+      this.error_message="Brakuje informacji";
       return;
     }
     const {client_nip,name}=this.clientForm.value;
@@ -226,14 +235,14 @@ export class Income {
       }).subscribe({
           next: data => {
               this.loading=false;
-              this.anal_message="";
+              this.error_message="";
               this.clients.push({"client_nip":client_nip,"name":name});
               this.clientForm.reset();
               this.success_message="Dodano klienta";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.message;
+              this.error_message = error.error.message;
               this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
@@ -244,17 +253,18 @@ export class Income {
   delete_client(){
     let in_client=document.getElementById("client_delete") as HTMLInputElement;
     if(!in_client.value) return;
+    this.loading=true;
     this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/report/client/${in_client.value}`).subscribe({
           next: data => {
               this.loading=false;
-              this.anal_message="";
+              this.error_message="";
               this.get_clients();
               in_client.value="";
               this.success_message="Usunięto klienta";
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.message;
+              this.error_message = error.error.message;
               this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
@@ -263,18 +273,18 @@ export class Income {
       })
   }
   patch_client(){
-    this.loading=true;
     let in_client=document.getElementById("client_patch") as HTMLInputElement;
     let in_name=document.getElementById("name_patch") as HTMLInputElement;
     if(!in_client.value|| in_name.value){
       this.success_message="";
-      this.anal_message="Wybierz klienta i podaj nazwę";
+      this.error_message="Wybierz klienta i podaj nazwę";
       return;
     }
+    this.loading=true;
     this.http.patch<any>(`${sessionStorage.getItem("apiURL")}/report/client/${in_client.value}`,{name:in_name.value}).subscribe({
           next: data => {
               this.loading=false;
-              this.anal_message="";
+              this.error_message="";
               this.get_clients();
               in_client.value="";
               in_name.value="";
@@ -282,7 +292,7 @@ export class Income {
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
-              this.anal_message = error.error.message;
+              this.error_message = error.error.message;
               this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;

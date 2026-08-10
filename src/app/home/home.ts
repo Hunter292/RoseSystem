@@ -22,6 +22,9 @@ export class Home {
     this.authService.check_login();
     this.is_admin=this.tokenService.getUser()?.admin;
   }
+  to_timer(){
+    this.router.navigate(['/timer']);
+  }
   to_task(){
     this.router.navigate(['/zadania']);
   }
