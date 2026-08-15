@@ -1,16 +1,25 @@
 <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg">
-    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <h1 class="title-header">Różowa Księgowa</h1>
     <main>
         <section>
             <h3 class="text-2xl text-center mb-3">Wyślij raport podatkowy</h3>
             <form  [formGroup]="inputForm" (ngSubmit)="file_report()">
             <div class="text-center mt-3">
                 <p class="mr-2 mb-3">Wybierz klienta: </p>
-                <select formControlName="client_nip" (change)="get_emails()" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                <select formControlName="client_nip" (change)="get_emails();get_micro()" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
                     @for(client of clients; track $index){
                         <option value="{{client.client_nip}}">{{client.name}}</option>
                     }
                 </select>
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Dodatkowe informacje: </p>
+                <textarea formControlName="notes" class="input-standart"></textarea>
+            </div>
+            <div class="flex justify-center items-center mt-3">
+                <p class="mr-2 w-50">Okres: </p>
+                <input type="text" placeholder="RRRR/MM-RRRR" formControlName="date" class="input-standart">
+                
             </div>
             <h5 class="text-lg text-center mb-3 mt-10">Wskaż na jakie emaile wysłać wyliczenie</h5>
             @for(item of createRange(emails);track $index){
@@ -33,36 +42,92 @@
                 @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
             </div>
 
-            <div class="flex justify-center items-center mt-3">
-                <p class="mr-2 w-50">Wpisz VAT7: </p>
-                <input type="text" formControlName="VAT7" class="input-standart" >
-            </div>
-            <div class="flex justify-center items-center mt-3">
-                <p class="mr-2 w-50">Wpisz VAT7K: </p>
-                <input type="text" formControlName="VAT7K" class="input-standart">
-            </div>
-            <div class="flex justify-center items-center mt-3">
-                <p class="mr-2 w-50">Wpisz VAT98: </p>
-                <input type="text" formControlName="VAT98" class="input-standart">
-            </div>
-            <div class="flex justify-center items-center mt-3">
-                <p class="mr-2 w-50">Wpisz CIT8: </p>
-                <input type="text" formControlName="CIT8" class="input-standart">
-            </div>
-            <div class="flex justify-center items-center mt-3">
-                <p class="mr-2 w-50">Wpisz PIT4: </p>
-                <input type="text" formControlName="PIT4" class="input-standart">
-            </div>
-            <div class="flex justify-center items-center mt-3">
-                <p class="mr-2 w-50">Wpisz ZUS: </p>
-                <input type="text" formControlName="ZUS" class="input-standart">
-            </div>
+            <h4 class="text-xl text-center mb-3 mt-10">Wprowadz podatki</h4>
+            @for(item of createRange(taxes);track $index){
+                <h5 class="text-lg text-center mb-3 mt-10">Podatek {{$index+1}}</h5>
+
+                <div class="grid grid-cols-2 mt-3">
+                    <div>
+                        <p>Nazwa</p>
+                        <input id="tax-{{$index}}" type="text" (change)="change_taxes($event)" class="input-standart" list="suggestions">
+                        <datalist id="suggestions">
+                            <option value="VAT7">
+                            <option value="VAT7K">
+                            <option value="VAT8">
+                            <option value="VAT9">
+                            <option value="PIT36">
+                            <option value="PIT36L">
+                            <option value="PIT8AR">
+                            <option value="PIT4">
+                            <option value="CIT 10Z">
+                            <option value="CIT8">
+                            <option value="ZUS">
+                        </datalist>
+                    </div>
+                    <div>
+                        <p>Wartość</p>
+                        <input id="tax_v-{{$index}}" type="number" step="0.01" class="input-standart">
+                    </div>
+                    <div>
+                        <p>Mikro rachunek</p>
+                        <select id="tax_acc-{{$index}}" class="input-standart" >
+                            <option value="0"></option>
+                            @if(!client_micro.length){<option value="0">ładowanie</option>}
+                            @for(micro of client_micro; track $index){
+                                <option value="{{micro.acc_number}}">{{micro.acc_number}}{{micro.ZUS==1?" ZUS":micro.ZUS?micro.ZUS:""}}</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <p>Termin płatności</p>
+                        <input id="tax_m-{{$index}}"  type="date" class="input-standart">
+                        
+                    </div>
+                </div>
+            }
             
             <button  [disabled]="loading" type="submit" class="button-standart">Prześlij</button>
             
             @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
             @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
             </form>
+        </section>
+        <section class="mt-10">
+            <h3 class="text-2xl text-center mb-3">Zmień nazwę klienta</h3>
+            <p class="mr-2 mb-3">Klient: </p>
+                <select id="client_patch"  class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+                        <option value=""></option>
+                    @for(client of clients; track $index){
+                        <option value="{{client.client_nip}}">{{client.name}}</option>
+                    }
+                </select>
+            <p class="mr-2 mb-3">Nowa nazwa: </p>
+            <input type="text" id="name_patch" class="bg-gray-100 p-3 text-base w-full  focus:outline-primary-300 focus:outline-2">
+            <button  [disabled]="loading" (click)="patch_client()" class="py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+            
+            @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
+        </section>
+        <section>
+            <h5 class="text-lg text-center mt-5 mb-3">Dodaj nowy mikro rachunek dla klienta</h5>
+            <div class="text-center  mb-10">
+                <div class="flex justify-center items-center mt-3">
+                    <p class="mr-2 w-50">Wpisz numer: </p>
+                    <input type="text" id="micro-new" class="input-standart">
+                </div>
+                <div class="flex justify-center items-center my-3">
+                    <p class="mr-2">ZUS?</p>
+                    <label class="toggler-wrapper style-1">
+                        <input type="checkbox" id="zus">
+                        <div class="toggler-slider">
+                            <div class="toggler-knob"></div>
+                        </div>
+                    </label>
+                </div>
+                <button  [disabled]="loading" (click)="file_micro()" class="mx-9 w-32 py-3 px-10 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full">Prześlij</button>
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+                @if(success_message){<div class="text-green-600">{{ success_message }}</div>}
+            </div>
         </section>
         <section class="mt-10">
             <h3 class="text-2xl text-center mb-3">Wysłane raporty</h3>
@@ -101,11 +166,12 @@
             </div>
             
         </section>
+         
     </main>
 </div>
 <div class="mx-5 my-10 ">
     <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto text-sm lg:text-base">
-        <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Księgowa</th><th class="w-26">Data</th><th>VAT7</th><th>VAT7K</th><th>VAT98</th><th>CIT8</th><th>PIT4</th><th>ZUS</th><th>email</th></tr></thead>
+        <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th class="max-w-75">Klient</th><th>Księgowa</th><th class="w-26">Data</th><th class="min-w-80">Zawartość</th><th>email</th></tr></thead>
         <tbody>
             @if(reports_loaded){
                 @for(report of reports;track $index){
@@ -113,12 +179,12 @@
                         <td>{{report.k_name}}</td>
                         <td>{{report.p_name}}</td>
                         <td>{{report.date}}</td>
-                        <td class="text-right">{{format_mula(report.VAT7)}}</td>
-                        <td class="text-right">{{format_mula(report.VAT7K)}}</td>
-                        <td class="text-right">{{format_mula(report.VAT98)}}</td>
-                        <td class="text-right">{{format_mula(report.CIT8)}}</td>
-                        <td class="text-right">{{format_mula(report.PIT4)}}</td>
-                        <td class="text-right">{{format_mula(report.ZUS)}}</td>
+                        <td>
+                            @for(content of report.content.split(";");track $index){
+                                <p>{{content}}</p>
+                            }
+                            {{report.notes}}
+                        </td>
                         <td>{{report_email_list[$index]}}</td>
                     </tr>
                 }

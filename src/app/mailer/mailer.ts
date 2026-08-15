@@ -25,7 +25,9 @@ export class Mailer {
   report_email_list:Array<any>=[];
   clients:Array<any>=[];
   client_mails:Array<any>=[];
+  client_micro:Array<any>=[];
   emails:number=1;
+  taxes:number=1;
   reports_loaded:boolean=false;
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -35,13 +37,8 @@ export class Mailer {
   ){
     this.inputForm = this.fb.group({
       client_nip: ['', Validators.required],
-      VAT7: ['', ],
-      VAT7K: ['',],
-      VAT98: ['',],
-      CIT8: ['',],
-      PIT4: ['',],
-      ZUS: ['',],
-
+      date: ['', Validators.required],
+      notes: ['', ],
     });
   }
   ngOnInit(){
@@ -72,28 +69,17 @@ export class Mailer {
     try{
       const response = await firstValueFrom(
         this.http.get<any>(`${sessionStorage.getItem("apiURL")}/mailer${gets}`)
-        /*.subscribe({
-            next: data => {
-                if(mode==2){
-                  this.report_emails=data;
-                  this.process_mail();
-                }
-                else this.report_emails=data;
-                this.changeDetectorRef.detectChanges();
-            },
-            error: (error) => {
-                this.error_message = error.error.message;
-                this.success_message="";
-                console.error('There was an error!', error);
-                return;
-            }
-        })*/
       );
       if(mode==2){
         this.report_emails=response;
         this.process_mail();
       }
-      else this.reports=response;
+      else{
+        this.reports=response;
+        for(let report of this.reports){
+          //report.content=report.content.replaceAll(";","\n\r")
+        }
+      }
       this.changeDetectorRef.detectChanges();
     }catch(error:any){
       this.error_message=error.error.message;
@@ -121,14 +107,35 @@ export class Mailer {
     })
   }
   get_emails(){
-    this.loading=true;
     let nip=this.inputForm.get("client_nip")?.value;
     if(!nip) return;
+    this.loading=true;
     this.http.get<any>(`${sessionStorage.getItem("apiURL")}/client_mail/${nip}`).subscribe({
       next: data => {
           this.client_mails=data;
           if(!this.client_mails.length) this.client_mails.push({email_id:'0',email:"Brak znanych emaile"})
           this.emails=1;
+          this.loading=false;
+          this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+          this.error_message = error.error.message;
+          this.success_message="";
+          console.error('There was an error!', error);
+          this.loading=false;
+          this.changeDetectorRef.detectChanges();
+          return;
+      }
+    })
+  }
+  get_micro(){
+    let nip=this.inputForm.get("client_nip")?.value;
+    if(!nip) return;
+    this.loading=true;
+    this.http.get<any>(`${sessionStorage.getItem("apiURL")}/mailer/micro_acc/${nip}`).subscribe({
+      next: data => {
+          this.client_micro=data;
+          if(!this.client_micro.length) this.client_micro.push({acc_number:'',ZUS:"Brak rachunków"})
           this.loading=false;
           this.changeDetectorRef.detectChanges();
       },
@@ -149,21 +156,10 @@ export class Mailer {
       this.changeDetectorRef.detectChanges();
       return;
     }
-    let {client_nip,VAT7,VAT7K,VAT98,CIT8,PIT4,ZUS}=this.inputForm.value;
-    let taxes=[VAT7,VAT7K,VAT98,CIT8,PIT4,ZUS];
-    const pattern=/^\d+\.*\d*$/;
-    for(let i=0;i<6;i++){
-      if(!taxes[i]) taxes[i]="0";
-      taxes[i]=taxes[i].replace(',','.');
-      taxes[i]=taxes[i].replace(' ','');
-      if(!pattern.test(taxes[i])){
-        this.success_message="";
-        this.error_message="Wpisane kwoty nie są liczbami";
-        this.changeDetectorRef.detectChanges();
-        return;
-      }
-    }
+    let {client_nip,date,notes}=this.inputForm.value;
+    
     let emails=[];
+    let taxes=[],taxes_names=[],taxes_acc=[],taxes_m=[];
     let elem;
     for(let i=0;i<this.emails-1;i++){
       elem=document.getElementById("email-"+i) as HTMLInputElement;
@@ -181,8 +177,48 @@ export class Mailer {
       this.changeDetectorRef.detectChanges();
       return;
     }
+    for(let i=0;i<this.taxes-1;i++){
+      elem=document.getElementById("tax-"+i) as HTMLInputElement;
+      if(elem.value==""){
+        this.success_message="";
+        this.error_message="Proszę wprowadzić podatek";
+        this.changeDetectorRef.detectChanges();
+        return;
+      }
+      taxes_names.push(elem.value);
+    }
+    if(!taxes_names.length){
+      this.success_message="";
+      this.error_message="Proszę wprowadzić podatek";
+      this.changeDetectorRef.detectChanges();
+      return;
+    }
+    for(let i=0;i<this.taxes-1;i++){
+      elem=document.getElementById("tax_v-"+i) as HTMLInputElement;
+      if(elem.value==""){
+        this.success_message="";
+        this.error_message="Proszę wprowadzić podatek";
+        this.changeDetectorRef.detectChanges();
+        return;
+      }
+      taxes.push(elem.value);
+    }
+    for(let i=0;i<this.taxes-1;i++){
+      elem=document.getElementById("tax_m-"+i) as HTMLInputElement;
+      if(elem.value==""){
+        this.success_message="";
+        this.error_message="Proszę wprowadzić podatek";
+        this.changeDetectorRef.detectChanges();
+        return;
+      }
+      taxes_m.push(elem.value);
+    }
+    for(let i=0;i<this.taxes-1;i++){
+      elem=document.getElementById("tax_acc-"+i) as HTMLInputElement;
+      taxes_acc.push(elem.value);
+    }
     this.loading=true;
-    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/mailer`,{client_nip:client_nip,VAT7:taxes[0],VAT7K:taxes[1],VAT98:taxes[2],CIT8:taxes[3],PIT4:taxes[4],ZUS:taxes[5],emails:emails}).subscribe({
+    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/mailer`,{client_nip:client_nip,taxes_v:taxes,taxes:taxes_names,taxes_acc:taxes_acc,taxes_m:taxes_m,notes:notes,emails:emails,date:date}).subscribe({
       next: data => {
           this.loading=false;
           let elem;
@@ -190,7 +226,12 @@ export class Mailer {
             elem=document.getElementById("email-"+i) as HTMLInputElement;
             elem.value="0";
           }
+          for(let i=this.taxes-2;i>=0;i--){
+            elem=document.getElementById("tax-"+i) as HTMLInputElement;
+            elem.value="";
+          }
           this.emails=1;
+          this.taxes=1;
           this.inputForm.reset();
           this.error_message="";
           this.success_message="Mail został wysłany";
@@ -208,8 +249,6 @@ export class Mailer {
     })
   }
   process_mail(){
-    // add am actual mailer in the back, add mail recovery,
-    // add extra data validation in the back, add comments,complete documentation and make user manual
     let previous=0;
     let text=""
     for(let email of this.report_emails){
@@ -229,6 +268,14 @@ export class Mailer {
       return;
     }
     this.emails+=1;
+  }
+  change_taxes(event:Event){
+    let input=event.target as HTMLInputElement;
+    if(input.value==""){
+      if(this.taxes>1) this.taxes-=1;
+      return;
+    }
+    this.taxes+=1;
   }
   file_email(){
     let nip=this.inputForm.get("client_nip")?.value;
@@ -270,13 +317,65 @@ export class Mailer {
       }
     })
   }
-  format_mula(text:string):string{
-    text=text.replace('.',',');
-    let length=text.length-3;
-    if(length>3){
-      text=text.substring(0,text.length-6)+'\u00A0'+text.substring(text.length-6);
+  file_micro(){
+    let nip=this.inputForm.get("client_nip")?.value;
+    if(!nip){
+      this.success_message="";
+      this.error_message="Napierw wybierz klienta";
+      return;
     }
-    return text;
+    let input=document.getElementById("micro-new") as HTMLInputElement;
+    let micro=input.value;
+    let zus_in=document.getElementById("zus") as HTMLInputElement;
+    let zus=zus_in.checked?1:0;
+    this.loading=true;
+    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/mailer/micro_acc/${nip}`,{acc_number:micro,zus:zus}).subscribe({
+      next: data => {
+          this.get_micro();
+          this.loading=false;
+          this.success_message="Dodano mikro rachunek";
+          input.value="";
+          zus_in.checked=false;
+          this.error_message="";
+          this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+          this.error_message = error.error.message;
+          this.success_message="";
+          console.error('There was an error!', error);
+          this.loading=false;
+          this.changeDetectorRef.detectChanges();
+          return;
+      }
+    })
+  }
+  patch_client(){
+    let in_client=document.getElementById("client_patch") as HTMLInputElement;
+    let in_name=document.getElementById("name_patch") as HTMLInputElement;
+    if(!in_client.value|| in_name.value){
+      this.success_message="";
+      this.error_message="Wybierz klienta i podaj nazwę";
+      return;
+    }
+    this.loading=true;
+    this.http.patch<any>(`${sessionStorage.getItem("apiURL")}/report/client/${in_client.value}`,{name:in_name.value}).subscribe({
+          next: data => {
+              this.loading=false;
+              this.error_message="";
+              this.get_clients();
+              in_client.value="";
+              in_name.value="";
+              this.success_message="Zmodyfikowano klienta";
+              this.changeDetectorRef.detectChanges();
+          },
+          error: (error) => {
+              this.error_message = error.error.message;
+              this.success_message="";
+              console.error('There was an error!', error);
+              this.loading=false;
+              return;
+          }
+      })
   }
   createRange(number:number){
   // return new Array(number);

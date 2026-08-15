@@ -21,7 +21,7 @@ export class Worker {
   job_list=["Księgowanie faktur","Księgowanie WB","Księgowanie PK","Analizy","Podatki",
               "Wystawianie faktur sprzedaży","Wprowadzanie płatności","Raporty dla klienta","Sprawozdania GUS","Usługi kadrowe","Inne"];
   jobs:Map<String,number>=new Map;
-
+  edited:any=null;
   constructor(
     private route:ActivatedRoute,
     private changeDetectorRef: ChangeDetectorRef,
@@ -67,11 +67,14 @@ export class Worker {
 
     let in_month=document.getElementById("month_filter") as HTMLInputElement;
     let month=in_month.value;
+    let in_month2=document.getElementById("month_filter-2") as HTMLInputElement;
+    let month2=in_month2.value;
     let in_year=document.getElementById("year_filter") as HTMLInputElement;
     let year=in_year.value;
     if(year && month)gets="?year="+year+"&month="+month;
     else if(year)gets="?year="+year;
     else if(month)gets="?month="+month;
+    if(month&&month2)gets+="&month2="+month2;
 
     let in_date=document.getElementById("date_filter") as HTMLInputElement;
     let date=in_date.value;
@@ -104,15 +107,21 @@ export class Worker {
       this.jobs.set(work.work_type,time2+time);
     }
   }
-  Delete(id:number){
-    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/work_done/${this.works[id].work_id}`).subscribe({
+  Delete(work:any){
+    if(!this.edited){
+      this.edited=work;
+      return;
+    }
+    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/work_done/${this.edited.work_id}`).subscribe({
         next: data => {
-            this.works.splice(id,1);
+            this.works.splice(this.works.indexOf(this.edited),1);
+            this.edited=null;
             this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
             this.error_message = error.error.detail;
             console.error('There was an error!', error);
+            this.edited=null;
             return;
         }
       })

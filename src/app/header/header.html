@@ -1,15 +1,17 @@
-<header class="bg-black w-full sticky top-0">
+<div class="bg-black border-b-2 border-primary-500"> <img src="/assets/rozowa-ksiegowa.svg" class="mx-auto h-20  py-2"></div>
+<header class="bg-black w-full sticky top-0 ">
+    
     @if(!is_admin){<nav class="w-full sm:w-2/3 mx-auto border-r-2 border-l-2 border-dotted border-primary-500 text-center text-primary-500 flex justify-center items-center mb-8 divide-x-2
-     divide-dotted divide-primary-500 *:w-1/3 *:py-5 *text-base sm:*:text-lg *:hover:bg-primary-700 *:hover:cursor-pointer *:hover:text-amber-300 *:transition-colors *:duration-500 ">
-        <a (click)="to_task()">Zadania</a> 
+     divide-dotted divide-primary-500 border-t-2 *:w-1/3 *:py-5 *text-base sm:*:text-lg *:hover:bg-primary-700 *:hover:cursor-pointer *:hover:text-amber-300 *:transition-colors *:duration-500 ">
+        <a (click)="to_task()">Zadania @if(count){({{count}})}</a> 
         <a (click)="to_timer()">Timer</a>
         <a (click)="to_mailer()" >Wyliczenia</a>   
         <a (click)="to_profile()" >Profil</a>     
         <a (click)="log_out()">Log out</a>
     </nav>}
-    @if(is_admin){<nav class="w-full sm:w-3/4 mx-auto border-r-2 border-l-2 border-dotted border-primary-500 text-center text-primary-500 flex justify-center items-center my-8 divide-x-2
-     divide-dotted divide-primary-500 *:w-1/7 *:py-5 *text-base sm:*:text-lg *:hover:bg-primary-700 *:hover:cursor-pointer *:hover:text-amber-300 *:transition-colors *:duration-500 ">
-        <a (click)="to_task()">Zadania</a>
+    @if(is_admin){<nav class="w-full sm:w-3/4 mx-auto border-r-2 border-l-2 border-dotted border-primary-500 text-center text-primary-500 flex justify-center items-center mb-8 divide-x-2
+     divide-dotted divide-primary-500  *:w-1/7 *:py-5 *text-base sm:*:text-lg *:hover:bg-primary-700 *:hover:cursor-pointer *:hover:text-amber-300 *:transition-colors *:duration-500 ">
+        <a (click)="to_task()">Zadania @if(count){({{count}})}</a>
         <a (click)="to_timer()">Timer</a>
         <a (click)="to_mailer()" >Wyliczenia</a>
         <a (click)="to_stats()">Opłacalność</a>

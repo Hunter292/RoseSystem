@@ -1,22 +1,20 @@
 import { Injectable,inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-
+import { firstValueFrom } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
 export class Util {
   private http=inject(HttpClient);
 
-  get_clients():any{
-    this.http.get<any>(`${sessionStorage.getItem("apiURL")}/report/client`).subscribe({
-        next: data => {
-            return data;
-        },
-        error: (error) => {
-            console.error('There was an error!', error);;
-            return [];
-        }
-      })
+  async get_clients():Promise<any[]>{
+    try{
+      const response = await firstValueFrom(this.http.get<any>(`${sessionStorage.getItem("apiURL")}/report/client`));
+      return response;
+    }catch(error:any){
+      console.error('There was an error!', error);
+      return [];
+    }
   }
   get_date_str(diff:number=0){
     let today=new Date();

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TokenStorageService } from '../core/token-storage';
-
+import { inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-header',
   imports: [],
@@ -14,9 +15,20 @@ export class Header {
     private tokenService: TokenStorageService,
     
   ){}
+  private http = inject(HttpClient);
   is_admin=false;
+  count:number=0;
   ngOnInit(){
     this.is_admin=this.tokenService.getUser()?.admin;
+    this.http.get<any>(`${sessionStorage.getItem("apiURL")}/task/new`).subscribe({
+      next: data => {
+          this.count=data;
+      },
+      error: (error) => {
+          console.error('There was an error!', error);
+          return;
+      }
+    })
   }
   to_task(){
     this.router.navigate(['/zadania']);

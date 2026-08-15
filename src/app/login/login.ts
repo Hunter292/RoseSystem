@@ -57,7 +57,7 @@ export class Login {
         this.loading = false;
       },
       error: (error) => {
-        this.errorMessage = 'Invalid username or password';
+        this.errorMessage = 'Nieprawidłowy login lub hasło';
         this.loginForm.get('password')?.reset();
         this.loading = false;
         this.changeDetectorRef.detectChanges();

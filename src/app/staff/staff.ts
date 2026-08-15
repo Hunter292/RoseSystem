@@ -33,11 +33,14 @@ export class Staff {
     let gets="";
     let in_month=document.getElementById("month_filter") as HTMLInputElement;
     let month=in_month.value;
+    let in_month2=document.getElementById("month_filter-2") as HTMLInputElement;
+    let month2=in_month2.value;
     let in_year=document.getElementById("year_filter") as HTMLInputElement;
     let year=in_year.value;
     if(year && month)gets="?year="+year+"&month="+month;
     else if(year)gets="?year="+year;
     else if(month)gets="?month="+month;
+    if(month&&month2)gets+="&month2="+month2;
     this.http.get<any>(`${sessionStorage.getItem("apiURL")}/report/staff${gets}`).subscribe({
         next: data => {
             this.loading=false;
@@ -63,6 +66,7 @@ export class Staff {
     let time;
     let id;
     let jobs=new Map;
+    this.workers=[];
     for(let staff of this.staves){
       time=(Number)(staff.time).toFixed(2);
       if(staff.email!=previous){

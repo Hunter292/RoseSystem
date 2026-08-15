@@ -1,5 +1,5 @@
 <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg">
-    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <h1 class="title-header">Różowa Księgowa</h1>
     <main>
         <section>
         <h3 class="text-2xl text-center mb-3">{{worker}}</h3>
@@ -7,6 +7,24 @@
             <div class="flex justify-center items-center mb-3">
                 <p class="mr-2 w-20">Miesiąc: </p>
                 <select id="month_filter" class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+                    <option value=""></option>
+                    <option value="1">Styczeń</option>
+                    <option value="2">Luty</option>
+                    <option value="3">Marzec</option>
+                    <option value="4">Kwiecień</option>
+                    <option value="5">Maj</option>
+                    <option value="6">Czerwiec</option>
+                    <option value="7">Lipiec</option>
+                    <option value="8">Sierpień</option>
+                    <option value="9">Wrzesień</option>
+                    <option value="10">Październik</option>
+                    <option value="11">Listopad</option>
+                    <option value="12">Grudzień</option>
+                </select>
+            </div>
+            <div class="flex justify-center items-center mb-3">
+                <p class="mr-2 w-20"></p>
+                <select id="month_filter-2"  class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
                     <option value=""></option>
                     <option value="1">Styczeń</option>
                     <option value="2">Luty</option>
@@ -52,7 +70,7 @@
                     <tr class="*:border *:border-gray-400 *:px-2 ">
                         <td>{{work.name}}</td><td>{{work.work_type}}</td><td>{{work.date}}</td>
                         <td>{{(work.time_start).substring(0,5)}}</td><td>{{(work.time).substring(0,(work.time).length-2)}} h</td>
-                        <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td>
+                        <td (click)="Delete(work)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td>
                     </tr>
                     
                 }
@@ -60,5 +78,24 @@
         </table>
         </section>
     </main>
+    @if(edited){
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 ">
+            <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
+                <h3 class="text-2xl text-center mb-3">Wybierz czynność</h3>
+                <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
+                    <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Klient</th><th>Czynność</th><th class="w-28">Data</th><th>Początek</th><th class="w-20">Czas</th></tr></thead>
+                    <tbody>
+                        <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
+                            <td>{{edited.name}}</td><td>{{edited.work_type}}</td><td>{{edited.date}}</td>
+                        <td>{{(edited.time_start).substring(0,5)}}</td><td>{{(edited.time).substring(0,(edited.time).length-2)}} h</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button  [disabled]="loading" (click)="Delete(edited)" class="button-standart mr-2 bg-red-500 hover:bg-red-700">Usuń</button>
+                <button  [disabled]="loading" (click)="edited=null" class="button-standart">Anuluj</button>
+                @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
+            </div>
+        </div>
+    }
 </div>
 

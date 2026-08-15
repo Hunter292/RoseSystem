@@ -41,10 +41,11 @@ export class WorkDone {
       notes: ['',],
     });
   }
-  ngOnInit(){
+  async ngOnInit(){
     this.authService.check_login();
-    this.clients=this.util.get_clients();
+    this.clients=await this.util.get_clients();
     if(!this.clients.length) this.error_message="Problem z pobraniem danych klientów";
+    this.loading=false;
     this.get_work();
     this.inputForm.get("date")?.setValue(this.util.get_date_str());
   }

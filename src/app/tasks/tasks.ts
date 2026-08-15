@@ -46,20 +46,21 @@ export class Tasks {
     this.inputForm = this.fb.group({
       client_nip: ['', Validators.required],
       desc: ['', Validators.required],
-      date: ['',Validators.required],
+      date: ['',],
     });
   }
-  ngOnInit(){
+  async ngOnInit(){
     this.authService.check_login();
-    this.clients=this.util.get_clients();
-    if(!this.clients.length) this.error_message="Problem z pobraniem danych klientów";
+    this.clients=await this.util.get_clients();
     this.http.get<any>(`${sessionStorage.getItem("apiURL")}/register`).subscribe({
         next: data => {
             this.workers=data;
+            this.loading=false;
             this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
             this.error_message = error.error.message;
+            this.loading=false;
             console.error('There was an error!', error);
             return;
         }
@@ -80,7 +81,7 @@ export class Tasks {
             this.get_tasks_members(mode,gets);
         },
         error: (error) => {
-            this.error_message = error.error.message;
+            //this.error_message = error.error.message;
             console.error('There was an error!', error);
             return;
         }
@@ -94,6 +95,7 @@ export class Tasks {
             }else{
               this.users_tasks_members=data;
             }
+            this.get_assigned_tasks_members(mode);
         },
         error: (error) => {
             this.error_message = error.error.message;
@@ -115,13 +117,15 @@ export class Tasks {
     let names:Array<any>=[];
     let id=this.authService.currentUserValue.id;
     for(let member of members){
-      if(member.employee_id!=previous){
+      if(member.task_id!=previous){
         if(previous){
-          if(mode) this.users_tasks_proccessed.push(names);
-          else this.to_user_tasks_proccessed.push(names);
+          let array=[];
+          for(let name of names) array.push(name);
+          if(mode) this.users_tasks_proccessed.push(array);
+          else this.to_user_tasks_proccessed.push(array);
         }
         names=[];
-        previous=member.employee_id;
+        previous=member.task_id;
         if(member.employee_id!=id ||mode)names.push({employee_id:member.employee_id,name:member.name,email:member.email,status:member.status});
         else this.to_user_tasks_status.push(member.status);
       }else{
@@ -129,8 +133,12 @@ export class Tasks {
         else this.to_user_tasks_status.push(member.status);
       }
     }
-    if(mode) this.users_tasks_proccessed.push(names);
-    else this.to_user_tasks_proccessed.push(names);
+    let array=[];
+    for(let name of names) array.push(name);
+    if(mode) this.users_tasks_proccessed.push(array);
+    else this.to_user_tasks_proccessed.push(array);
+    this.changeDetectorRef.detectChanges();
+
   }
   file_task(){
     if(this.inputForm.invalid){
@@ -138,30 +146,31 @@ export class Tasks {
       this.success_message="";
       return;
     }
-    let users=[];
-    let elem;
-    for(let i=0;i<this.users-1;i++){
-      elem=document.getElementById("user-"+i) as HTMLInputElement;
-      if(elem.value=="0"){
-        this.success_message="";
-        this.error_message="Proszę wybrać email";
-        this.changeDetectorRef.detectChanges();
-        return;
-      }
-      users.push(elem.value);
-    }
-    if(!users.length){
-      this.success_message="";
-      this.error_message="Proszę wybrać email";
-      this.changeDetectorRef.detectChanges();
-      return;
-    }
+    
     const {client_nip, desc, date}=this.inputForm.value;
     let client_only= document.getElementById("client_only") as HTMLInputElement;
     let priority=client_only.checked?1:0;
-    this.loading=true;
     if(!this.patch){
-      this.http.post<any>(`${sessionStorage.getItem("apiURL")}/tasks`, { client_nip:client_nip,description:desc,deadline:date,priority:priority,victims:users
+      let users=[];
+      let elem;
+      for(let i=0;i<this.users-1;i++){
+        elem=document.getElementById("user-"+i) as HTMLInputElement;
+        if(elem.value=="0"){
+          this.success_message="";
+          this.error_message="Proszę wybrać pracownika";
+          this.changeDetectorRef.detectChanges();
+          return;
+        }
+        users.push(elem.value);
+      }
+      if(!users.length){
+        this.success_message="";
+        this.error_message="Proszę wybrać pracownika";
+        this.changeDetectorRef.detectChanges();
+        return;
+      }
+      this.loading=true;
+      this.http.post<any>(`${sessionStorage.getItem("apiURL")}/task`, { client_nip:client_nip,description:desc,deadline:date,priority:priority,victims:users
       }).subscribe({
           next: data => {
               this.loading=false;
@@ -170,6 +179,7 @@ export class Tasks {
               this.inputForm.reset();
               this.reset_users();
               this.get_tasks(1);
+              this.get_tasks(0);
               this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
@@ -177,11 +187,13 @@ export class Tasks {
               this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
+              this.changeDetectorRef.detectChanges();
               return;
           }
       })
     }else{
-      this.http.patch<any>(`${sessionStorage.getItem("apiURL")}/tasks/${this.patch}`, { client_nip:client_nip,description:desc,deadline:date,priority:priority
+      this.loading=true;
+      this.http.patch<any>(`${sessionStorage.getItem("apiURL")}/task/${this.patch}`, { client_nip:client_nip,description:desc,deadline:date,priority:priority
       }).subscribe({
           next: data => {
               this.loading=false;
@@ -191,12 +203,14 @@ export class Tasks {
               this.reset_users();
               this.patch=0;
               this.get_tasks(1);
+              this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
               this.error_message = error.error.detail;
               this.success_message="";
               console.error('There was an error!', error);
               this.loading=false;
+              this.changeDetectorRef.detectChanges();
               return;
           }
       })
@@ -231,7 +245,7 @@ export class Tasks {
       return;
     }
     this.loading=true;
-    this.http.patch<any>(`${sessionStorage.getItem("apiURL")}/tasks_member/${this.patch}/${this.authService.currentUserValue.id}`, { status:status
+    this.http.patch<any>(`${sessionStorage.getItem("apiURL")}/task/${this.task_status.task_id}/${this.authService.currentUserValue.id}`, { status:status
       }).subscribe({
           next: data => {
               this.loading=false;
@@ -240,6 +254,7 @@ export class Tasks {
               let index=this.to_user_tasks.indexOf(this.task_status);
               this.to_user_tasks_status[index]=status;
               this.task_status=null;
+              this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
               this.error_message = error.error.detail;
@@ -247,6 +262,7 @@ export class Tasks {
               console.error('There was an error!', error);
               this.loading=false;
               this.task_status=null;
+              this.changeDetectorRef.detectChanges();
               return;
           }
       })
@@ -258,16 +274,20 @@ export class Tasks {
       return;
     }
     this.loading=true;
-    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/tasks_member/${this.edited_task.task_id}/${this.edited_worker.employee_id}`
+    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/task/${this.edited_task.task_id}/${this.edited_worker.employee_id}`
       ).subscribe({
           next: data => {
               this.loading=false;
               this.success_message="Usunięto "+this.edited_worker.name+" z zadania";
               this.error_message="";
               let index=this.users_tasks.indexOf(this.edited_task);
-              this.users_tasks_proccessed[index].splice(this.users_tasks_proccessed[index].indexOf(this.edited_worker),1);
+              console.log(index);
+              let array=this.users_tasks_proccessed[index];
+              console.log(array);
+              array.splice(array.indexOf(this.edited_worker),1);
               this.edited_task=null;
               this.edited_worker=null;
+              this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
               this.error_message = error.error.detail;
@@ -276,6 +296,7 @@ export class Tasks {
               this.loading=false;
               this.edited_task=null;
               this.edited_worker=null;
+              this.changeDetectorRef.detectChanges();
               return;
           }
       })
@@ -288,7 +309,8 @@ export class Tasks {
     this.loading=true;
     let elem=document.getElementById("input_add_worker") as HTMLInputElement;
     let worker=this.workers[Number(elem.value)];
-    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/tasks_member/${this.to_task.task_id}`,{employee_id:worker.employee_id
+    console.log(worker.employee_id);
+    this.http.post<any>(`${sessionStorage.getItem("apiURL")}/task/members/${this.to_task.task_id}`,{employee_id:worker.employee_id
       }).subscribe({
           next: data => {
               this.loading=false;
@@ -297,6 +319,7 @@ export class Tasks {
               let index=this.users_tasks.indexOf(this.to_task);
               this.users_tasks_proccessed[index].push({employee_id:worker.employee_id,name:worker.name,email:worker.email,status:0});
               this.to_task=null;
+              this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
               this.error_message = error.error.detail;
@@ -304,6 +327,7 @@ export class Tasks {
               console.error('There was an error!', error);
               this.loading=false;
               this.to_task=null;
+              this.changeDetectorRef.detectChanges();
               return;
           }
       })
@@ -312,16 +336,19 @@ export class Tasks {
     this.edited_task=task;
   }
   Patch(){
+    console.log(this.edited_task.client_nip);
     this.inputForm.get("client_nip")?.setValue(this.edited_task.client_nip);
     this.inputForm.get("desc")?.setValue(this.edited_task.description);
     this.inputForm.get("date")?.setValue(this.edited_task.deadline);
     this.patch=this.edited_task.task_id;
     this.edited_task=null;
+    document.body.scrollTop = 0; 
+    document.documentElement.scrollTop = 0; 
     this.reset_users();
   }
   Delete(){
     this.loading=true;
-    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/tasks/${this.edited_task.task_id}`
+    this.http.delete<any>(`${sessionStorage.getItem("apiURL")}/task/${this.edited_task.task_id}`
       ).subscribe({
           next: data => {
               this.loading=false;
@@ -331,6 +358,7 @@ export class Tasks {
               this.users_tasks.splice(index,1);
               this.users_tasks_proccessed.splice(index,1);
               this.edited_task=null;
+              this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
               this.error_message = error.error.detail;
@@ -338,6 +366,7 @@ export class Tasks {
               console.error('There was an error!', error);
               this.loading=false;
               this.edited_task=null;
+              this.changeDetectorRef.detectChanges();
               return;
           }
       })
@@ -351,8 +380,9 @@ export class Tasks {
       default: return "Error";
     }
   }
-  color_status(status:number):string{
-    let classes:string="flex";
+  color_status(status:number,mode:number):string{
+    let classes:string="flex justify-between align-middle rounded-2xl p-2 m-2";
+    if(mode) classes+="";
     switch(status){
       case 0: classes+=" bg-red-500";break;
       case 1: classes+=" bg-amber-400";break;

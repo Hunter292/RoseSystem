@@ -1,12 +1,12 @@
 <div class="container-standart">
-    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <h1 class="title-header">Różowa Księgowa</h1>
     <main>
-        <section>
+        <section class="mb-5">
             <h3 class="text-2xl text-center mb-3">Dodaj czynność</h3>
             <form  [formGroup]="inputForm" (ngSubmit)="file_task()">
                 <div class="text-center mt-3">
                     <p class="mr-2">Wybierz klienta: </p>
-                    <select id="client_pick" formControlName="client_nip" class="input-standart">
+                    <select id="client_pick" formControlName="client_nip" class="input-standart w-full max-w-full text-wrap *:max-w-xl">
                         <option value="0">Wewnętrzne</option>
                         @for(client of clients; track $index){
                             <option value="{{client.client_nip}}">{{client.name}}</option>
@@ -46,25 +46,57 @@
                 @if(error_message){<div class="text-red-600 ">{{ error_message }}</div>}
                 @if(success_message){<div class="text-green-600 ">{{ success_message }}</div>}
 
-                <button type="submit" [disabled]="loading" class="button-standart">Zapisz</button>
+                <button type="submit" [disabled]="loading" class="button-standart">Dodaj</button>
 
             </form>
         </section>
-        <section>
+        <section class="mb-5">
             <h3 class="text-2xl text-center mb-3">Zadania do wykonania</h3>
+            <div class="flex justify-evenly items-center my-5">
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Miesiąc: </p>
+                    <select id="month_filter0" (change)="get_tasks(0)"  class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+                        <option value=""></option>
+                        <option value="1">Styczeń</option>
+                        <option value="2">Luty</option>
+                        <option value="3">Marzec</option>
+                        <option value="4">Kwiecień</option>
+                        <option value="5">Maj</option>
+                        <option value="6">Czerwiec</option>
+                        <option value="7">Lipiec</option>
+                        <option value="8">Sierpień</option>
+                        <option value="9">Wrzesień</option>
+                        <option value="10">Październik</option>
+                        <option value="11">Listopad</option>
+                        <option value="12">Grudzień</option>
+                    </select>
+                </div>
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Rok: </p>
+                    <input type="number" id="year_filter0" (change)="get_tasks(0)" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
+                </div>
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Ukończ: </p>
+                    <select type="number" id="status_filter0" (change)="get_tasks(0)" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
+                        <option value="1">NIE</option>
+                        <option value="0">TAK</option>
+                    </select>
+                </div>
+            </div>
             @for(task of to_user_tasks;track $index){
-            <div>
-                <div>
-                    @if(task.priority=="1"){<h4 class="text-xl text-center mb-3 text-red-400">Priorytet</h4>}
+            <div class=" mb-2 border-2 border-primary-600">
+                <div class="border-b-2 bg-primary-200 border-primary-600 p-2">
+                    @if(task.priority=="1"){<h4 class="text-2xl text-center mb-3 text-red-600">Priorytet</h4>}
                     <p>{{task.description}}</p>
-                    <div class="grid grid-cols-4">
+                    <p>{{task.k_name}}</p>
+                    <div class="grid grid-cols-2">
                         <div>
                             <p>Autor:</p>
                             <p>{{task.name}}</p>
                         </div>
                         <div>
                             <p>Termin:</p>
-                            <p>{{task.deadline}}</p>
+                            <p>{{task.deadline=="0000-00-00"?"Brak":task.deadline}}</p>
                         </div>
                         <div>
                             <p>Data zlecenia:</p>
@@ -72,61 +104,94 @@
                         </div>
                         <div>
                             <p>Status: {{translate_status(to_user_tasks_status[$index])}}</p>
-                            <button class="button-standart" (click)="change_status(task)">Zmień status</button>
+                            <button class="text-primary-700 transition-colors duration-500 hover:text-amber-500" (click)="change_status(task)">Zmień status</button>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-3">
+                <div class="bg-primary-100 p-2">
                     <h4 class="text-xl text-center mb-3">Pracownicy:</h4>
+                    <div class="">
                     @for(member of to_user_tasks_proccessed[$index];track $index){
-                        <div [classList]="color_status(member.status)">
-                            <div>
-                                <p>{{member.name}}</p>
-                                <p>{{member.email}}</p>
-                            </div>
+                        <div [classList]="color_status(member.status,0)">
+                            <p>{{member.name}} {{member.email}}</p>
                             <p>Status: {{translate_status(member.status)}}</p>
                         </div>
                     }
+                    </div>
                 </div>
             </div>
             }
         </section>
-        <section>
+        <section class="mb-5">
             <h3 class="text-2xl text-center mb-3">Zadanie przez Ciebie wydane</h3>
+            <div class="flex justify-evenly items-center my-5">
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Miesiąc: </p>
+                    <select id="month_filter1" (change)="get_tasks(1)"  class="bg-gray-100 p-3 text-base w-36 focus:outline-primary-300 focus:outline-2">
+                        <option value=""></option>
+                        <option value="1">Styczeń</option>
+                        <option value="2">Luty</option>
+                        <option value="3">Marzec</option>
+                        <option value="4">Kwiecień</option>
+                        <option value="5">Maj</option>
+                        <option value="6">Czerwiec</option>
+                        <option value="7">Lipiec</option>
+                        <option value="8">Sierpień</option>
+                        <option value="9">Wrzesień</option>
+                        <option value="10">Październik</option>
+                        <option value="11">Listopad</option>
+                        <option value="12">Grudzień</option>
+                    </select>
+                </div>
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Rok: </p>
+                    <input type="number" id="year_filter1" (change)="get_tasks(1)" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
+                </div>
+                <div class="flex justify-center items-center">
+                    <p class="mr-2 w-15">Ukończ: </p>
+                    <select type="number" id="status_filter1" (change)="get_tasks(1)" class="bg-gray-100 p-3 text-base w-30 focus:outline-primary-300 focus:outline-2">
+                        <option value="1">NIE</option>
+                        <option value="0">TAK</option>
+                    </select>
+                </div>
+            </div>
             @for(task of users_tasks;track $index){
-            <div>
-                <div>
-                    @if(task.priority=="1"){<h4 class="text-xl text-center mb-3 text-red-400">Priorytet</h4>}
+            <div class=" mb-2 border-2 border-primary-600">
+                <div class="border-b-2 bg-primary-200 border-primary-600 p-2">
+                    @if(task.priority=="1"){<h4 class="text-2xl text-center mb-3 text-red-600">Priorytet</h4>}
                     <p>{{task.description}}</p>
-                    <div class="grid grid-cols-4">
+                    <p>{{task.k_name}}</p>
+                    <div class="grid grid-cols-2">
                         <div>
                             <p>Termin:</p>
-                            <p>{{task.deadline}}</p>
+                            <p>{{task.deadline=="0000-00-00"?"Brak":task.deadline}}</p>
                         </div>
                         <div>
                             <p>Data zlecenia:</p>
                             <p>{{task.date}}</p>
                         </div>
                         <div>
-                            <button class="button-standart" (click)="Edit_task(task)">Edytuj zadanie</button>
+                            <button class="text-primary-700 transition-colors duration-500 hover:text-amber-500" (click)="Edit_task(task)">Edytuj zadanie</button>
                         </div>
                         <div>
-                            <button class="button-standart" (click)="add_to_task(task)">Dodaj pracownika</button>
+                            <button class="text-primary-700 transition-colors duration-500 hover:text-amber-500" (click)="add_to_task(task)">Dodaj pracownika</button>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-3">
+                <div class="bg-primary-100 p-2">
                     <h4 class="text-xl text-center mb-3">Pracownicy:</h4>
+                    <div class="">
                     @for(member of users_tasks_proccessed[$index];track $index){
-                        <div [classList]="color_status(member.status)">
+                        <div [classList]="color_status(member.status,1)">
                             <div>
                                 <p>{{member.name}}</p>
                                 <p>{{member.email}}</p>
                             </div>
                             <p>Status: {{translate_status(member.status)}}</p>
-                            <button class="button-standart" (click)="remove_from_task(task.task_id,member)">Usuń</button>
+                            <button class="button-slim" (click)="remove_from_task(task,member)">Usuń</button>
                         </div>
                     }
+                    </div>
                 </div>
             </div>
             }
@@ -137,9 +202,9 @@
             <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
                 <h3 class="text-2xl text-center mb-3">Jaki status nadać</h3>
                 <p>{{task_status.description}}</p>
-                <button  [disabled]="loading" (click)="change_status(task_status,0)" class="button-standart mr-2 bg-amber-400 hover:bg-amber-600">Zapoznano się</button>
-                <button  [disabled]="loading" (click)="change_status(task_status,1)" class="button-standart mr-2 bg-green-300 hover:bg-green-500">W trakcie</button>
-                <button  [disabled]="loading" (click)="change_status(task_status,1)" class="button-standart mr-2 bg-green-500 hover:bg-green-700">Wykonano</button>
+                <button  [disabled]="loading" (click)="change_status(task_status,1)" class="button-standart mr-2 bg-amber-400 hover:bg-amber-600">Zapoznano się</button>
+                <button  [disabled]="loading" (click)="change_status(task_status,2)" class="button-standart mr-2 bg-green-300 hover:bg-green-500">W trakcie</button>
+                <button  [disabled]="loading" (click)="change_status(task_status,3)" class="button-standart mr-2 bg-green-500 hover:bg-green-700">Wykonano</button>
                 <button  [disabled]="loading" (click)="task_status=null" class="button-standart">Anuluj</button>
                 @if(error_message){<div class="text-red-600">{{ error_message }}</div>}
             </div>
@@ -150,7 +215,7 @@
             <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white px-2 py-10">
                 <h3 class="text-2xl text-center mb-3">Czy jesteś pewna?</h3>
                 <p>{{edited_task.description}}</p>
-                <p>edited_worker.name</p>
+                <p>{{edited_worker.name}}</p>
                 <button  [disabled]="loading" (click)="remove_from_task(edited_task,1)" class="button-standart mr-2 bg-red-500 hover:bg-red-700">Usuń</button>
                 <button  [disabled]="loading" (click)="edited_task=null;edited_worker=null" class="button-standart">Anuluj</button>
                 @if(error_message){<div class="text-red-600">{{ error_message }}</div>}

@@ -1,5 +1,5 @@
 <div class="w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg">
-    <h1 class="text-5xl text-center mb-5">Różowa Księgowa</h1>
+    <h1 class="title-header">Różowa Księgowa</h1>
     <main>
         
         <section class="mt-10" id="worker_form">
@@ -41,13 +41,12 @@
         <section class="mt-10">
             <h3 class="text-2xl text-center mb-3">Pracownicy</h3>
             <table cellpadding="10" cellspacing="0" class="table-auto border border-gray-500 text-left mx-auto">
-                <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Imie</th><th>Email</th><th>Admin</th><th>Zmień</th><th>Usuń</th></tr></thead>
+                <thead><tr class="*:border *:border-gray-400 *:px-2 bg-primary-200"><th>Imie</th><th>Email</th><th>Admin</th><th>Zmień</th></tr></thead>
                 <tbody>
                     @for(worker of workers;track $index){
                         <tr class="*:border *:border-gray-400 *:px-2 even:bg-gray-200 odd:bg-white">
                             <td>{{worker.name}}</td><td>{{worker.email}}</td><td>{{worker.admin!="0"?"Tak":"Nie"}}</td>
-                            <td (click)="Patch(worker)" class="bg-amber-400 cursor-pointer hover:bg-amber-600 transition-colors duration-500"></td>
-                            <td (click)="Delete($index)" class="bg-red-400 cursor-pointer hover:bg-red-600 transition-colors duration-500"></td>
+                            <td (click)="Edit(worker)" class="bg-amber-400 cursor-pointer hover:bg-amber-600 transition-colors duration-500"></td>
                         </tr>
                     }
                 </tbody>

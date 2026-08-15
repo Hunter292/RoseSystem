@@ -18,8 +18,14 @@
     .button-standart{
         @apply py-3 px-10 my-5 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full
     }
+    .button-slim{
+        @apply py-3 px-2 block w-30 hover:bg-primary-700 hover:cursor-pointer hover:text-amber-300 transition-colors duration-500 bg-primary-500 rounded-full
+    }
     .container-standart{
         @apply w-full sm:w-lg md:w-xl lg:w-3xl xl:w-5xl bg-white text-center py-12 px-2 sm:p-12 shadow-sm mx-auto text-lg
+    }
+    .title-header{
+        @apply text-5xl text-center mb-5 text-primary-800;
     }
 }
 body{
