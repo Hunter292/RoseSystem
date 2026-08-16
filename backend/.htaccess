@@ -1,0 +1,14 @@
+RewriteEngine On
+RewriteBase /backend/
+RewriteRule ^index\\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /backend/api/index.php [L]
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+<IfModule mod_headers.c>
+    SetEnvIf Origin "http(s)?://(www\.)?(hunter292.github.io|localhost:4200)$" AccessControlAllowOrigin=$0
+    Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PATCH, DELETE"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+    Header set Access-Control-Allow-Credentials true
+</IfModule>
