@@ -6,28 +6,28 @@ class Router
      */
     private static array $routes = [
         //will likely need changing for deployment
-        "backend/api/login"=>"login.php",
-        "backend/api/register"=>"register.php",
-        "backend/api/register/{id}"=>"register.php",
-        "backend/api/work_done"=>"work_done.php",
-        "backend/api/work_done/{id}"=>"work_done.php",
-        "backend/api/report/client"=>"client.php",
-        "backend/api/report/client/{id}"=>"client.php",
-        "backend/api/report/client_work/{id}"=>"client_work_done.php",
-        "backend/api/report/client_rates"=>"client_rates.php",
-        "backend/api/report/staff"=>"staff.php",
-        "backend/api/report/staff/{id}"=>"staff_work_done.php",
-        "backend/api/report/income"=>"income.php",
-        "backend/api/report/income/{id}"=>"income.php",
-        "backend/api/mailer"=>"mailer.php",
-        "backend/api/mailer/micro_acc/{id}"=>"micro_acc.php",
-        "backend/api/client_mail/{id}"=>"client_mail.php",
-        "backend/api/task"=>"tasks.php",
-        "backend/api/task/members"=>"tasks_member.php",
-        "backend/api/task/new"=>"task_new.php",
-        "backend/api/task/{id}"=>"tasks.php",
-        "backend/api/task/members/{id}"=>"tasks_member.php",
-        "backend/api/task/{id}/{employee}"=>"tasks_member.php",
+        "login"=>"login.php",
+        "register"=>"register.php",
+        "register/{id}"=>"register.php",
+        "work_done"=>"work_done.php",
+        "work_done/{id}"=>"work_done.php",
+        "report/client"=>"client.php",
+        "report/client/{id}"=>"client.php",
+        "report/client_work/{id}"=>"client_work_done.php",
+        "report/client_rates"=>"client_rates.php",
+        "report/staff"=>"staff.php",
+        "report/staff/{id}"=>"staff_work_done.php",
+        "report/income"=>"income.php",
+        "report/income/{id}"=>"income.php",
+        "mailer"=>"mailer.php",
+        "mailer/micro_acc/{id}"=>"micro_acc.php",
+        "client_mail/{id}"=>"client_mail.php",
+        "task"=>"tasks.php",
+        "task/members"=>"tasks_member.php",
+        "task/new"=>"task_new.php",
+        "task/{id}"=>"tasks.php",
+        "task/members/{id}"=>"tasks_member.php",
+        "task/{id}/{employee}"=>"tasks_member.php",
 
     ];
     public static array $route_params=[];
@@ -69,7 +69,7 @@ class Router
             exit();
         }
         http_response_code(404);
-        echo json_encode(["message"=>"Resource doesn't exist"]);
+        echo json_encode(["message"=>"Resource doesn't exist test"]);
         exit();
     }
 }

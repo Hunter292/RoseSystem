@@ -31,7 +31,7 @@
             if($input["admin"]>1)$input["admin"]=1;
             $query=$connection->prepare("INSERT INTO pracownik VALUES(NULL,:name,:email,:password,:admin,current_timestamp())");
             $query->bindValue(":name",$input["username"],PDO::PARAM_STR);
-            $query->bindValue(":password",password_hash(hash_hmac("sha256", $input["password"], $_ENV["PEPPER"]),PASSWORD_ARGON2ID),PDO::PARAM_STR);
+            $query->bindValue(":password",password_hash(hash_hmac("sha256", $input["password"], getenv("PEPPER")),PASSWORD_ARGON2ID),PDO::PARAM_STR);
             $query->bindValue(":email",$input["email"],PDO::PARAM_STR);
             $query->bindValue(":admin",$input["admin"],PDO::PARAM_INT);
             $query->execute();
@@ -125,7 +125,7 @@
                 $query->bindValue(":name",$name,PDO::PARAM_STR);
                 $query->bindValue(":email",$input["email"],PDO::PARAM_STR);
                 $query->bindValue(":id",$id,PDO::PARAM_INT);
-                if($pass)$query->bindValue(":password",password_hash(hash_hmac("sha256", $input["password"], $_ENV["PEPPER"]),PASSWORD_ARGON2ID),PDO::PARAM_STR);
+                if($pass)$query->bindValue(":password",password_hash(hash_hmac("sha256", $input["password"], getenv("PEPPER")),PASSWORD_ARGON2ID),PDO::PARAM_STR);
                 $query->bindValue(":admin",$admin,PDO::PARAM_INT);
                 
                 $query->execute();

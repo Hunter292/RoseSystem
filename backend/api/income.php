@@ -17,7 +17,7 @@
                     echo json_encode(["message" => "Missing data"]);
                     exit();
                 }
-                $query=$connection->prepare("INSERT INTO Faktura VALUES(NULL,:nip,:amount,:date)");
+                $query=$connection->prepare("INSERT INTO faktura VALUES(NULL,:nip,:amount,:date)");
                 $query->bindValue(":nip",$input["client_nip"],PDO::PARAM_STR);
                 $query->bindValue(":amount",$input["amount"],PDO::PARAM_STR);
                 $query->bindValue(":date",$input["date"],PDO::PARAM_STR);
@@ -44,7 +44,7 @@
                 exit();
             }
             //find clients not in the database and add them
-            $query=$connection->query("SELECT client_nip FROM Klient");
+            $query=$connection->query("SELECT client_nip FROM klient");
             $result=$query->fetchAll();
             $sql="INSERT INTO Klient VALUES(:nip0,:name0)";
             $insert_nips=[];
@@ -118,7 +118,7 @@
                 echo json_encode(["message" => "Missing data"]);
                 exit();
             }
-            $query=$connection->prepare("UPDATE Faktura SET client_nip=:nip,amount=:amount,date=:date WHERE faktura_id=:faktura_id");
+            $query=$connection->prepare("UPDATE faktura SET client_nip=:nip,amount=:amount,date=:date WHERE faktura_id=:faktura_id");
             $query->bindValue(":nip",$input["client_nip"],PDO::PARAM_STR);
             $query->bindValue(":amount",$input["amount"],PDO::PARAM_INT);
             $query->bindValue(":date",$input["date"],PDO::PARAM_STR);

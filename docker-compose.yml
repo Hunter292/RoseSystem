@@ -1,0 +1,140 @@
+name: RoseSystem
+
+services:
+  # --------------------------------------------------------------------
+  # Frontend: Angular built to static files, served by nginx.
+  # Also acts as the single public entrypoint: it proxies /api/* to the
+  # backend so the browser only ever talks to one origin (no CORS pain).
+  # --------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        API_URL: ${API_URL:-/api}
+    image: RoseSystem-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend-web
+    networks:
+      - appnet
+
+  # --------------------------------------------------------------------
+  # Backend PHP-FPM process. No ports exposed publicly; only reachable
+  # from backend-web (nginx) over the internal network on port 9000.
+  # --------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: RoseSystem-backend:latest
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      SECRET_KEY:  ${SECRET_KEY}
+      PEPPER:      ${PEPPER}
+    env_file:
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - backend_storage:/var/www/html/storage
+    networks:
+      - appnet
+
+  # --------------------------------------------------------------------
+  # Nginx in front of PHP-FPM (fastcgi). Kept as a separate container
+  # from `backend` so static assets / fastcgi tuning stay independent
+  # of the PHP runtime image.
+  # --------------------------------------------------------------------
+  backend-web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ./backend:/var/www/html:ro
+      - ./backend/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - appnet
+
+  # --------------------------------------------------------------------
+  # MySQL database
+  # --------------------------------------------------------------------
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      # Comment this out if you don't want the DB reachable from the host at all.
+      # Useful for connecting a local MySQL client / GUI for ad-hoc queries.
+      - "127.0.0.1:${DB_PORT:-3306}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - appnet
+
+  # --------------------------------------------------------------------
+  # Adminer: lightweight web GUI for browsing the DB / running exports.
+  # Bind to localhost only, or put behind auth / a VPN in real prod.
+  # --------------------------------------------------------------------
+  adminer:
+    image: adminer:4-standalone
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${ADMINER_PORT:-8080}:8080"
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+  # --------------------------------------------------------------------
+  # Automated + on-demand MySQL backups (mysqldump, gzip, retention).
+  # Runs on a daily cron by default; can also be invoked manually:
+  #   docker compose exec db-backup /usr/local/bin/backup.sh
+  # --------------------------------------------------------------------
+  db-backup:
+    build:
+      context: ./docker/mysql-backup
+    image: RoseSystem-db-backup:latest
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      BACKUP_CRON_SCHEDULE: ${BACKUP_CRON_SCHEDULE:-0 2 * * *}
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
+
+volumes:
+  db_data:
+  backend_storage:

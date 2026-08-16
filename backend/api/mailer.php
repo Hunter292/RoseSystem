@@ -88,15 +88,13 @@
                     $mail->Port=465;
                     //$mail->SMTPSecure='tls';
                     $mail->SMTPAuth=true;
-                    $mail->Username='kacper05112004@gmail.com';
+                    $mail->Username='';
                     //$mail->Username='biuro@rozowaksiegowa.pl';
-                    $mail->Password='ihgjqqcqvpdyaiia';
+                    $mail->Password='';
                     $mail->CharSet='UTF-8';
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-                    $mail->setFrom("kacper05112004@gmail.com",$data["name"]);
-                    //foreach($emails as $email) $mail->addAddress($email);
-                    $mail->addAddress("kacper05112004@gmail.com");
-                    $mail->addAddress("kacpercwiek@tutamail.com");
+                    $mail->setFrom("",$data["name"]);
+                    foreach($emails as $email) $mail->addAddress($email);
                     //$mail->addReplyTo('biuro@rozowaksiegowa.pl','Biuro');
                     $mail->addReplyTo($data["email"]);
 

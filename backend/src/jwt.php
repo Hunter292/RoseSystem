@@ -18,7 +18,7 @@ class Jwt{
         $payload = json_encode($payload);
         $payload = Jwt::base64URLEncode($payload);
 
-        $signature = hash_hmac("sha256", $header . "." . $payload, $_ENV["SECRET_KEY"], true);
+        $signature = hash_hmac("sha256", $header . "." . $payload, getenv("SECRET_KEY"), true);
         $signature = Jwt::base64URLEncode($signature);
         return $header . "." . $payload . "." . $signature;
     }
@@ -44,7 +44,7 @@ class Jwt{
         $signature = hash_hmac(
             "sha256",
             $matches["header"] . "." . $matches["payload"],
-            $_ENV["SECRET_KEY"],
+            getenv("SECRET_KEY"),
             true
         );
         $signature_from_token = Jwt::base64URLDecode($matches["signature"]);

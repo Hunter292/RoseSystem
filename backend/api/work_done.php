@@ -80,7 +80,7 @@
             exit();
         }
         case 'GET':{
-            $sql="SELECT work_id,name,client_nip,work_type,date,time_start,time_finish,notes FROM praca JOIN Klient USING(client_nip) WHERE employee_id={$data["id"]}";
+            $sql="SELECT work_id,name,client_nip,work_type,date,time_start,time_finish,notes FROM praca JOIN klient USING(client_nip) WHERE employee_id={$data["id"]}";
             if(isset($_GET["id"])&&$_GET["id"]) $sql.=" AND client_nip=:nip";
             if(isset($_GET["date"])&&$_GET["date"]) $sql.=" AND date=:date";
             $sql.=" ORDER BY date DESC,work_id DESC LIMIT 100";

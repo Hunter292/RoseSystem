@@ -29,8 +29,6 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 
-.env
-to_do.txt
 # Miscellaneous
 /.angular/cache
 .sass-cache/

@@ -48,7 +48,7 @@
             exit();
         }
         case 'GET':{
-            $query=$connection->query("SELECT client_nip,name FROM Klient ORDER BY name");
+            $query=$connection->query("SELECT client_nip,name FROM klient ORDER BY name");
             if(!$query){
                 http_response_code(500);
                 echo json_encode(["message" => "Something went wrong"]);
@@ -65,7 +65,7 @@
                 echo json_encode(["message"=>"Resource doesn't exist"]);
                 exit();
             }
-            $query=$connection->prepare("DELETE FROM Klient WHERE client_nip=:id");
+            $query=$connection->prepare("DELETE FROM klient WHERE client_nip=:id");
             $query->bindValue(":id",Router::$route_params["id"],PDO::PARAM_STR);
             $query->execute();
             if(!$query){

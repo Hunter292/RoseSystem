@@ -12,7 +12,8 @@ import { Header } from './header/header';
 export class App {
   protected readonly title = signal('RoseSystem');
   ngOnInit(){
-    sessionStorage.setItem("apiURL","http://localhost/backend/api")
+    //sessionStorage.setItem("apiURL","http://localhost/backend/api")
+    sessionStorage.setItem("apiURL","/api")
     //https://brudwawa.duckdns.org/api  https://localhost:8000/api
   }
   showNavbar = true;

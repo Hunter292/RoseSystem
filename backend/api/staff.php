@@ -24,7 +24,7 @@
             if(!$get&&$year) $get.=" WHERE Year(date)=:year";
             elseif($year)$get.=" AND Year(date)=:year";
             $sql.=$get;
-            $sql.=" GROUP BY work_type,email ORDER BY email,work_type";
+            $sql.=" GROUP BY work_type,email,name,employee_id ORDER BY email,work_type";
 
             $query=$connection->prepare($sql);
             if($month) $query->bindValue(":month",$month,PDO::PARAM_INT);

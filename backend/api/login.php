@@ -21,7 +21,7 @@
             $query->bindValue(":email",$input["email"],PDO::PARAM_STR);
             $query->execute();
             $result=$query->fetch();
-            if (!$result || !password_verify(hash_hmac("sha256", $input["password"], $_ENV["PEPPER"]),$result["password"])){
+            if (!$result || !password_verify(hash_hmac("sha256", $input["password"], getenv("PEPPER")),$result["password"])){
                 http_response_code(401);
                 echo json_encode(["message" => "invalid authentication"]);
                 exit;

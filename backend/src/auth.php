@@ -9,7 +9,10 @@ class Auth
      */
     public static function authenticate_jwt_token(PDO $connection):array
     {
-        if (!preg_match("/^Bearer\s+(.*)$/", $_SERVER["REDIRECT_HTTP_AUTHORIZATION"], $matches)) {
+        $authorization = $_SERVER['HTTP_AUTHORIZATION']
+        ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
+        ?? null;
+        if (!$authorization || !preg_match("/^Bearer\s+(.*)$/", $authorization, $matches)) {
             http_response_code(400);
             echo json_encode(["message" => "incomplete authorization header"]);
             exit();
@@ -27,6 +30,7 @@ class Auth
             exit();
         }
         return $data;
+        
     }
     /**
      * Check whether the user is an Admin
@@ -56,7 +60,7 @@ class Auth
         $query->bindValue(":email",$email,PDO::PARAM_STR);
         $query->execute();
         $result=$query->fetch();
-        if (!$result || !password_verify(hash_hmac("sha256", $pass, $_ENV["PEPPER"]),$result["password"])) {
+        if (!$result || !password_verify(hash_hmac("sha256", $pass, getenv("PEPPER")),$result["password"])) {
             http_response_code(403);
             echo json_encode(["message" => "invalid authentication"]);
             exit;
