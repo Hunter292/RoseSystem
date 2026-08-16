@@ -90,7 +90,7 @@
                     $mail->SMTPAuth=true;
                     $mail->Username='kacper05112004@gmail.com';
                     //$mail->Username='biuro@rozowaksiegowa.pl';
-                    $mail->Password='ihgjqqcqvpdyaiia';
+                    $mail->Password='dupa';
                     $mail->CharSet='UTF-8';
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                     $mail->setFrom("kacper05112004@gmail.com",$data["name"]);
