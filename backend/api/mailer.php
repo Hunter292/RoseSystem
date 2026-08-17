@@ -22,7 +22,7 @@
             $content="";
             for($i=0;$i<sizeof($input["taxes"]);$i++){
                 $content.=$input["taxes"][$i]." - ".$input["taxes_v"][$i]." zł termin płatności:".$input["taxes_m"][$i];
-                //if($input["taxes_acc"][$i]) $content.=" rachunek: ".$input["taxes_acc"][$i];
+                if($input["taxes_acc"][$i]) $content.=" rachunek: ".$input["taxes_acc"][$i];
                 //if($input["taxes_m"][$i]) $content.=" okres: ".$input["taxes_m"][$i];
                 $content.=";";
             }
@@ -88,14 +88,12 @@
                     $mail->Port=465;
                     //$mail->SMTPSecure='tls';
                     $mail->SMTPAuth=true;
-                    $mail->Username='';
-                    //$mail->Username='biuro@rozowaksiegowa.pl';
-                    $mail->Password='';
+                    $mail->Username=getenv("MAIL_USER");
+                    $mail->Password=getenv("MAIL_PASS");
                     $mail->CharSet='UTF-8';
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                     $mail->setFrom("",$data["name"]);
                     foreach($emails as $email) $mail->addAddress($email);
-                    //$mail->addReplyTo('biuro@rozowaksiegowa.pl','Biuro');
                     $mail->addReplyTo($data["email"]);
 
                     $mail->isHTML(true);
@@ -103,8 +101,7 @@
                     $text="<ul>";
                     for($i=0;$i<sizeof($input["taxes"]);$i++){
                         $text.="<li style=\"display: flex; margin-bottom: 5px;\"><p style=\"width: 50px;\">{$input["taxes"][$i]}</p><p> - {$input["taxes_v"][$i]} zł, termin płatności: {$input["taxes_m"][$i]}</p>";
-                        //if($input["taxes_acc"][$i]) $text.="<p> rachunek: ".$input["taxes_acc"][$i]."</p>";
-                        //if($input["taxes_m"][$i]) $text.="<p> okres: ".$input["taxes_m"][$i]."</p>";
+                        if($input["taxes_acc"][$i]) $text.="<p> rachunek: ".$input["taxes_acc"][$i]."</p>";
                         $text.="</li>";
                     }
                     $text.="</ul>";

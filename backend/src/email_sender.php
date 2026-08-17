@@ -10,8 +10,8 @@ class email_sender{
         $mail->Port=587;
         $mail->SMTPSecure='tls';
         $mail->SMTPAuth=true;
-        $mail->Username='';
-        $mail->Password='';
+        $mail->Username=getenv('MAIL_USER');
+        $mail->Password=getenv("MAIL_PASS");
         $mail->CharSet='UTF-8';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->setFrom($from_m,$from_n);
